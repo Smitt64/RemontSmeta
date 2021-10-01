@@ -1,0 +1,43 @@
+{
+    "elements": [
+        {
+            "title": "Главное",
+            "icon": "Home",
+            "mime": "application/home",
+
+            "elements": [
+                {
+                    "title": "Ремонты",
+                    "icon": "Repair",
+                    "mime": "application/repair"
+                }
+            ]
+        },
+        {
+            "title": "Справочники",
+            "icon": "ReferenceFolder",
+            "mime": "application/reference",
+
+            "elements": [
+                {
+                    "title": "Клиенты",
+                    "icon": "TeamProjectCollection",
+                    "mime": "application/clients",
+
+                    "actions": [
+                        {
+                            "title": "Добавить клиента",
+                            "icon": "AddTeamProjectCollection",
+                            "mime": "application/add-client"
+                        }
+                    ]
+                },
+                {
+                    "title": "Все субъекты",
+                    "icon": "Team",
+                    "mime": "application/all-person"
+                }
+            ]
+        }
+    ]
+}

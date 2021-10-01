@@ -1,0 +1,38 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/splash.jpg</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file>images/dark-icons/16x16/applets/Address.png</file>
+        <file>images/dark-icons/16x16/applets/EmailAddress.png</file>
+        <file>images/dark-icons/16x16/applets/famele.png</file>
+        <file>images/dark-icons/16x16/applets/male.png</file>
+        <file>images/dark-icons/16x16/applets/Phone.png</file>
+        <file>images/dark-icons/index.theme</file>
+        <file>images/dark-icons/16x16/actions/New.png</file>
+        <file>images/dark-icons/16x16/actions/NewAddress.png</file>
+        <file>images/dark-icons/16x16/actions/NewEmailAddress.png</file>
+        <file>images/dark-icons/16x16/actions/NewPhone.png</file>
+        <file>images/dark-icons/16x16/applets/Team.png</file>
+        <file>images/dark-icons/16x16/actions/NewTeam.png</file>
+        <file>images/dark-icons/16x16/actions/EditAddress.png</file>
+        <file>images/dark-icons/16x16/actions/EditBase.png</file>
+        <file>images/dark-icons/16x16/actions/EditEmailAddress.png</file>
+        <file>images/dark-icons/16x16/actions/EditPhone.png</file>
+        <file>images/dark-icons/16x16/actions/RemoveAddress.png</file>
+        <file>images/dark-icons/16x16/actions/RemoveBase.png</file>
+        <file>images/dark-icons/16x16/actions/RemoveEmailAddress.png</file>
+        <file>images/dark-icons/16x16/actions/RemovePhone.png</file>
+        <file>images/dark-icons/16x16/applets/Repair.png</file>
+        <file>images/dark-icons/16x16/applets/MainMenu.png</file>
+        <file>images/dark-icons/16x16/applets/ReferenceFolder.png</file>
+        <file>images/dark-icons/16x16/applets/Home.png</file>
+        <file>images/dark-icons/16x16/applets/TeamProjectCollection.png</file>
+        <file>images/dark-icons/16x16/actions/AddTeamProjectCollection.png</file>
+        <file>images/dark-icons/16x16/actions/OpenBase.png</file>
+        <file>images/dark-icons/16x16/actions/OpenTeamProjectCollection.png</file>
+    </qresource>
+    <qresource prefix="/tools">
+        <file>json/navigation.json</file>
+    </qresource>
+</RCC>
