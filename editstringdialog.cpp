@@ -103,3 +103,9 @@ void EditStringDialog::setEnabledOk(bool val)
 {
     m_OkButton->setEnabled(val);
 }
+
+void EditStringDialog::setReadOnly(bool value)
+{
+    ui->lineEdit->setReadOnly(value);
+    ui->buttonBox->setVisible(!value);
+}

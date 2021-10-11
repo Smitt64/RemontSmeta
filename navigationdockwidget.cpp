@@ -22,7 +22,7 @@ public:
     enum CustomRoles
     {
         RoleMime = Qt::UserRole + 1,
-        RoleActions
+        RoleActions,
     };
 
     NavigationModel(QObject *parent = nullptr) :
@@ -59,6 +59,7 @@ private:
         QString title = obj["title"].toString();
         QString icon = obj["icon"].toString();
         QString mime = obj["mime"].toString();
+        QString statustip = obj["statustip"].toString();
 
         TreeItem *item = new TreeItem({title}, parent);
         parent->appendChild(item);
@@ -68,6 +69,9 @@ private:
 
         if (!mime.isEmpty())
             item->setRoleData(0, NavigationModel::RoleMime, mime);
+
+        if (!statustip.isEmpty())
+            item->setRoleData(0, Qt::StatusTipRole, statustip);
 
         if (obj.contains("actions"))
         {

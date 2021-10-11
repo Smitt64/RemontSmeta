@@ -11,7 +11,14 @@
 
 #define INVALID_PRIMARY_INDEX -1
 
-bool ExecuteQuery(QSqlQuery *query, QString *err = nullptr);
+namespace SqlTools
+{
+    bool ExecuteQuery(QSqlQuery *query, QString *err = nullptr);
+
+    bool beginTransaction(QSqlDatabase &_db);
+    bool commitTransaction(QSqlDatabase &_db);
+    void rollbackTransaction(QSqlDatabase &_db);
+};
 
 class DbTable;
 class DbTableIndex
@@ -126,6 +133,11 @@ public:
 protected:
     void fillFieldsNameIds();
     bool newRecPrivate();
+
+    bool beginTransaction();
+    bool commitTransaction();
+    void rollbackTransaction();
+
     QString updateSql(const DbTableIndex *index = nullptr) const;
     QString selectSql(const DbTableIndex *index = nullptr) const;
     QString deleteSql(const DbTableIndex *index = nullptr) const;

@@ -8,8 +8,20 @@
 class TPerson : public DbTable
 {
 public:
+    enum PersonSex
+    {
+        SexUnknown = 0,
+        SexMale,
+        SexFemale
+    };
     TPerson(QSqlDatabase _db = QSqlDatabase::database());
     virtual ~TPerson();
+
+    static QString getSexName(const quint8 &sex);
+    static QString getSexChar(const quint8 &sex);
+    static QIcon getSexIcon(const quint8 &sex);
+
+    static bool deletePerson(const quint16 &id);
 };
 
 // ------------------------------------------------

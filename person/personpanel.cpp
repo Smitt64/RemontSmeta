@@ -2,6 +2,7 @@
 #include "ui_personpanel.h"
 #include "editcontactdlg.h"
 #include "dbtablebaseproxymodel.h"
+#include "globals.h"
 #include <QDataWidgetMapper>
 #include <QListWidgetItem>
 #include <QDebug>
@@ -10,6 +11,35 @@
 #include <QShortcut>
 #include <QKeySequence>
 #include <QMessageBox>
+#include <QCompleter>
+
+template<class T>
+void setReadOnly(QScopedPointer<T> &widget)
+{
+    if (std::is_member_function_pointer<decltype(&T::setEnabled)>::value)
+        widget->setEnabled(false);
+}
+
+template<class T>
+void setReadOnly(T *widget)
+{
+    if constexpr (std::is_same<T, QLineEdit>::value || std::is_same<T, QPlainTextEdit>::value)
+        widget->setReadOnly(true);
+
+    if constexpr(std::is_same<T, QComboBox>::value)
+        widget->setEnabled(false);
+
+    if constexpr(std::is_same<T, QListView>::value || std::is_same<T, QListWidget>::value)
+    {
+        widget->setContextMenuPolicy(Qt::NoContextMenu);
+        widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    }
+
+    if constexpr(std::is_same<T, QListWidget>::value)
+        widget->setEnabled(false);
+}
+
+// -------------------------------------------------------------------------
 
 class ContactsProxy : public DbTableBaseProxyModel
 {
@@ -101,6 +131,11 @@ PersonPanel::PersonPanel(const quint16 &person, QWidget *parent) :
     ui(new Ui::PersonPanel)
 {
     ui->setupUi(this);
+    m_NameCompleter.reset(new QCompleter());
+    m_NameCompleter->setModel(Globals::inst()->namesModel());
+    m_NameCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+    m_NameCompleter->setFilterMode(Qt::MatchContains);
+    ui->nameEdit->setCompleter(m_NameCompleter.data());
 
     m_Service.reset(new TPersonService(person));
     m_Service->start();
@@ -120,9 +155,11 @@ PersonPanel::PersonPanel(const quint16 &person, QWidget *parent) :
     }
     else
     {
-        m_Table->newRec();
-        setWindowTitle(tr("Ввод нового субъекта"));
-        setWindowIcon(QIcon::fromTheme("NewTeam"));
+        if (m_Table->newRec() && m_Table->insert())
+        {
+            setWindowTitle(tr("Ввод нового субъекта"));
+            setWindowIcon(QIcon::fromTheme("NewTeam"));
+        }
     }
 
     ui->sexBox->setItemIcon(1, QIcon::fromTheme("male"));
@@ -174,6 +211,7 @@ void PersonPanel::setupMapping()
     m_AdressProxy.reset(new AdressProxy(m_Adress.data()));
     m_AdressProxy->setSourceModel(m_Adress.data());
     ui->adressView->setModel(m_AdressProxy.data());
+    ui->adressView->setIconSize(QSize(16, 16));
 }
 
 void PersonPanel::onSave()
@@ -184,9 +222,9 @@ void PersonPanel::onSave()
 
 void PersonPanel::setupShortcuts()
 {
-    m_AddPhoneShortcut.reset(new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_P), this));
-    m_AddEmailShortcut.reset(new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_E), this));
-    m_AddAdressShortcut.reset(new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_R), this));
+    m_AddPhoneShortcut.reset(new QShortcut(QKeySequence(Qt::CTRL KEY_OP Qt::Key_P), this));
+    m_AddEmailShortcut.reset(new QShortcut(QKeySequence(Qt::CTRL KEY_OP Qt::Key_E), this));
+    m_AddAdressShortcut.reset(new QShortcut(QKeySequence(Qt::CTRL KEY_OP Qt::Key_R), this));
 
     connect(m_AddPhoneShortcut.data(), &QShortcut::activated, this, &PersonPanel::inputPhone);
     connect(m_AddEmailShortcut.data(), &QShortcut::activated, this, &PersonPanel::inputEmail);
@@ -216,7 +254,7 @@ void PersonPanel::updateFullName()
         fullname += ui->patronymicEdit->text();
     }
 
-    if (m_Contacts->seek(m_DataMapper->currentIndex()))
+    if (m_Table->seek(m_DataMapper->currentIndex()))
     {
         ui->fullnameEdit->setText(fullname);
         m_Table->setValue("t_fullname", fullname);
@@ -227,6 +265,7 @@ void PersonPanel::updateFullName()
 void PersonPanel::inputPhone()
 {
     EditContactDlg dlg(this);
+    dlg.setReadOnly(ui->nameEdit->isReadOnly());
     if (dlg.exec() == QDialog::Accepted)
     {
         if (m_Contacts->newRec())
@@ -242,6 +281,7 @@ void PersonPanel::inputPhone()
 void PersonPanel::inputEmail()
 {
     EditEmailDlg dlg(this);
+    dlg.setReadOnly(ui->nameEdit->isReadOnly());
     if (dlg.exec() == QDialog::Accepted)
     {
         if (m_Contacts->newRec())
@@ -257,6 +297,7 @@ void PersonPanel::inputEmail()
 void PersonPanel::inputAdress()
 {
     EditAddressDlg dlg(this);
+    dlg.setReadOnly(ui->nameEdit->isReadOnly());
     if (dlg.exec() == QDialog::Accepted)
     {
         if (m_Adress->newRec())
@@ -276,11 +317,13 @@ void PersonPanel::editContact(const quint16 &row)
         quint16 type = m_Contacts->value("t_type").value<quint16>();
 
         QScopedPointer<EditStringDialog> dlg;
+
         if (type == TContact::TypePhone)
             dlg.reset(new EditContactDlg(value, this));
         else
             dlg.reset(new EditEmailDlg(value, this));
 
+        dlg->setReadOnly(ui->nameEdit->isReadOnly());
         if (dlg->exec() == QDialog::Accepted)
         {
             m_Contacts->setValue("t_value", dlg->text());
@@ -297,6 +340,7 @@ void PersonPanel::editAdress(const quint16 &row)
 
         QScopedPointer<EditStringDialog> dlg;
         dlg.reset(new EditAddressDlg(value, this));
+        dlg->setReadOnly(ui->nameEdit->isReadOnly());
 
         if (dlg->exec() == QDialog::Accepted)
         {
@@ -489,7 +533,7 @@ void PersonPanel::contactsContextMenu(const QPoint &pos)
 
 void PersonPanel::pumpOwns()
 {
-    quint16 personid = m_Table->value("t_id").value<quint16>();
+    qint16 personid = m_Table->value("t_id").value<qint16>();
 
     bool hr = m_PersonOwn->find(1, QVariantList() << personid);
 
@@ -529,7 +573,7 @@ void PersonPanel::ownChanged(QListWidgetItem *item)
     else
     {
         quint16 personid = m_Table->value("t_id").value<quint16>();
-        bool hr = m_PersonOwn->delete_(2, QVariantList() << personid << row);
+        m_PersonOwn->delete_(2, QVariantList() << personid << row);
         /*bool hr = m_PersonOwn->find(2, QVariantList() << personid << row);
 
         if (hr)
@@ -537,4 +581,25 @@ void PersonPanel::ownChanged(QListWidgetItem *item)
             hr = m_PersonOwn->delete_();
         }*/
     }
+}
+
+void PersonPanel::setViewMode()
+{
+    ui->buttonBox->setVisible(false);
+    setReadOnly(m_AddPhoneShortcut);
+    setReadOnly(m_AddEmailShortcut);
+    setReadOnly(m_AddAdressShortcut);
+
+    setReadOnly(ui->nameEdit);
+    setReadOnly(ui->familyEdit);
+    setReadOnly(ui->patronymicEdit);
+    setReadOnly(ui->sexBox);
+
+    setReadOnly(ui->contactsView);
+    setReadOnly(ui->adressView);
+    setReadOnly(ui->ownWidget);
+    setReadOnly(ui->noteEdit);
+
+    setWindowIcon(QIcon::fromTheme("Team"));
+    setWindowTitle(tr("Просмотр субъекта: %1").arg(ui->fullnameEdit->text()));
 }

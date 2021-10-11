@@ -4,9 +4,24 @@
 #include <type_traits>
 #include <QVariant>
 
+#if QT_VERSION >= 0x060000
+#define QFieldType QMetaType::Type
+#else
+#define QFieldType QVariant::Type
+#endif
+
 class DbFieldBase
 {
 public:
+    enum FieldType
+    {
+        String = 1,
+        Date,
+        Int,
+        Double,
+        ByteArray
+    };
+
     DbFieldBase(const QString &name, const qint16 &size = 0)
     {
         m_Name = name.toLower();
@@ -18,9 +33,59 @@ public:
         return m_Name;
     }
 
-    const QVariant::Type &type() const
+    const FieldType &type() const
     {
         return m_Type;
+    }
+
+    QFieldType qType() const
+    {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        QFieldType t = QMetaType::UnknownType;
+#else
+        QFieldType t = QVariant::Invalid;
+#endif
+
+        switch(m_Type)
+        {
+        case FieldType::String:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            t = QMetaType::QString;
+#else
+            t = QVariant::String;
+#endif
+            break;
+        case FieldType::Date:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            t = QMetaType::QDate;
+#else
+            t = QVariant::Date;
+#endif
+            break;
+        case FieldType::Int:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            t = QMetaType::LongLong;
+#else
+            t = QVariant::LongLong;
+#endif
+            break;
+        case FieldType::Double:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            t = QMetaType::QMetaType::Double;
+#else
+            t = QVariant::QVariant::Double;
+#endif
+            break;
+        case FieldType::ByteArray:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            t = QMetaType::QMetaType::QByteArray;
+#else
+            t = QVariant::QVariant::ByteArray;
+#endif
+            break;
+        }
+
+        return t;
     }
 
     const quint16 &size() const
@@ -34,19 +99,19 @@ public:
 
         switch(m_Type)
         {
-        case QVariant::String:
+        case FieldType::String:
             type = "TEXT";
             break;
-        case QVariant::Date:
+        case FieldType::Date:
             type = "INTEGER";
             break;
-        case QVariant::Int:
+        case FieldType::Int:
             type = "INTEGER";
             break;
-        case QVariant::Double:
+        case FieldType::Double:
             type = "REAL";
             break;
-        case QVariant::ByteArray:
+        case FieldType::ByteArray:
             type = "BLOB";
             break;
         default:
@@ -59,7 +124,7 @@ public:
 protected:
     QString m_Name;
     quint16 m_Size;
-    QVariant::Type m_Type;
+    FieldType m_Type;
 };
 
 template<class Type>
@@ -72,17 +137,17 @@ public:
         m_Type = defineType();
     }
 private:
-    QVariant::Type defineType() const
+    FieldType defineType() const
     {
-        QVariant::Type t = QVariant::String;
+        FieldType t = FieldType::String;
         if (std::is_same<Type, int>::value)
-            t = QVariant::Int;
+            t = FieldType::Int;
         else if (std::is_same<Type, QDate>::value)
-            t = QVariant::Date;
+            t = FieldType::Date;
         else if (std::is_same<Type, float>::value)
-            t = QVariant::Double;
+            t = FieldType::Double;
         else if (std::is_same<Type, QByteArray>::value)
-            t = QVariant::ByteArray;
+            t = FieldType::ByteArray;
         return t;
     }
 };

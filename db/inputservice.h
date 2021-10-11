@@ -39,6 +39,7 @@ public:
 
     bool start();
     bool sync();
+    bool delete_();
 
     virtual QSharedPointer<DbTable> createTableObj();
 
@@ -64,6 +65,9 @@ protected:
 
     quint16 m_Index;
     QVariantList m_IndexValues;
+
+private:
+    bool deletePrivate();
 };
 
 template<class TTable>

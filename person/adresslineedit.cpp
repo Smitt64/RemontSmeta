@@ -49,9 +49,9 @@ void AdressLineEdit::keyPressEvent(QKeyEvent *e)
 
 QString AdressLineEdit::cursorWord(const QString &sentence) const
 {
-    return sentence.mid(sentence.leftRef(cursorPosition()).lastIndexOf(" ") + 1,
+    return sentence.mid(sentence.left(cursorPosition()).lastIndexOf(" ") + 1,
                         cursorPosition() -
-                        sentence.leftRef(cursorPosition()).lastIndexOf(" ") - 1);
+                        sentence.left(cursorPosition()).lastIndexOf(" ") - 1);
 }
 
 void AdressLineEdit::insertCompletion(QString arg)

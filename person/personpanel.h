@@ -15,6 +15,7 @@ class ContactsProxy;
 class AdressProxy;
 class QShortcut;
 class QListWidgetItem;
+class QCompleter;
 class PersonPanel : public QDialog
 {
     Q_OBJECT
@@ -22,6 +23,8 @@ class PersonPanel : public QDialog
 public:
     explicit PersonPanel(const quint16 &person = 0, QWidget *parent = nullptr);
     ~PersonPanel();
+
+    void setViewMode();
 
 private slots:
     void onSave();
@@ -49,6 +52,7 @@ private:
     QScopedPointer<AdressProxy> m_AdressProxy;
     QSharedPointer<DbTable> m_Table, m_Contacts, m_Adress, m_PersonOwn;
     QScopedPointer<TPersonService> m_Service;
+    QScopedPointer<QCompleter> m_NameCompleter;
 
     QScopedPointer<QShortcut> m_AddPhoneShortcut, m_AddEmailShortcut, m_AddAdressShortcut;
 

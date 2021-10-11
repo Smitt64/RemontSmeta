@@ -23,6 +23,7 @@
                     "title": "Клиенты",
                     "icon": "TeamProjectCollection",
                     "mime": "application/clients",
+                    "statustip" : "Список клиентов",
 
                     "actions": [
                         {
@@ -41,6 +42,11 @@
                     "title": "Все субъекты",
                     "icon": "Team",
                     "mime": "application/all-person"
+                },
+                {
+                    "title": "Типы ремонта",
+                    "icon": "RenovationType",
+                    "mime": "application/renovationtype"
                 }
             ]
         }

@@ -1,5 +1,8 @@
+#include "loggingcategories.h"
 #include "tclient.h"
+#include "person/tpersonservice.h"
 #include <QtCore>
+#include <QIcon>
 
 TPerson::TPerson(QSqlDatabase _db) :
     DbTable("dperson_dbt", _db)
@@ -24,6 +27,69 @@ TPerson::TPerson(QSqlDatabase _db) :
 TPerson::~TPerson()
 {
 
+}
+
+QString TPerson::getSexName(const quint8 &sex)
+{
+    QString value;
+    switch(sex)
+    {
+    case SexMale:
+        value = "Мужчина";
+        break;
+    case SexFemale:
+        value = "Женщина";
+        break;
+    default:
+        value = "";
+    }
+    return value;
+}
+
+QString TPerson::getSexChar(const quint8 &sex)
+{
+    QString value;
+    switch(sex)
+    {
+    case SexMale:
+        value = QChar(0x2640);
+        break;
+    case SexFemale:
+        value = QChar(0x2642);
+        break;
+    default:
+        value = "";
+    }
+    return value;
+}
+
+QIcon TPerson::getSexIcon(const quint8 &sex)
+{
+    QIcon value;
+    switch(sex)
+    {
+    case SexMale:
+        value = QIcon::fromTheme("male");
+        break;
+    case SexFemale:
+        value = QIcon::fromTheme("famele");
+        break;
+    default:
+        value = QIcon();
+    }
+    return value;
+}
+
+bool TPerson::deletePerson(const quint16 &id)
+{
+    qCInfo(logDbTable()) << QString("Delete person %1").arg(id);
+    bool hr = true;
+
+    QScopedPointer<TPersonService> service(new TPersonService(id));
+    hr = service->delete_();
+
+    qCInfo(logDbTable()) <<"Delete person. Status:" << hr;
+    return hr;
 }
 
 // ------------------------------------------------

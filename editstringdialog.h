@@ -20,6 +20,8 @@ public:
     void setText(const QString &value);
     QString text() const;
 
+    void setReadOnly(bool value);
+
 public slots:
     virtual void accept();
 

@@ -1,6 +1,8 @@
 #include "globals.h"
 #include "db/dbexception.h"
 #include "loggingcategories.h"
+#include "clientswindow/viewpartywindow.h"
+#include "reference/renovationtypeeditor.h"
 #include <QSplashScreen>
 #include <QApplication>
 #include <QJsonDocument>
@@ -29,6 +31,12 @@ Globals *Globals::inst()
     return m_pThis;
 }
 
+#define CALL_INIT_FUNCTIONS(func, mes)  \
+    screen->showMessage(mes, Qt::AlignLeft, Qt::white); \
+    QCoreApplication::processEvents(); \
+    func(); \
+    QCoreApplication::processEvents()
+
 void Globals::init(QSplashScreen *screen)
 {
     qCInfo(logCore()) << "Init";
@@ -39,25 +47,47 @@ void Globals::init(QSplashScreen *screen)
     QIcon::setThemeName("dark-icons");
     qDebug() << QIcon::themeSearchPaths() << QIcon::themeName();
 
-    screen->showMessage(tr("Загрузка справочника улиц..."), Qt::AlignLeft, Qt::white);
-    QCoreApplication::processEvents();
-    loadStreets();
-    QCoreApplication::processEvents();
+    CALL_INIT_FUNCTIONS(loadStreets, tr("Загрузка справочника улиц..."));
+    CALL_INIT_FUNCTIONS(loadNames, tr("Загрузка справочника имен..."));
+    CALL_INIT_FUNCTIONS(openDataBase, tr("Открытие базы данных..."));
+    CALL_INIT_FUNCTIONS(registerInterfaces, tr("Регистрация интерфейсов..."));
+}
 
-    screen->showMessage(tr("Открытие базы данных..."), Qt::AlignLeft, Qt::white);
-    QCoreApplication::processEvents();
-    openDataBase();
-    QCoreApplication::processEvents();
+bool Globals::loadStringListModelJson(const QString &fname, const QString &element, QStringListModel *model)
+{
+    bool hr = true;
+
+    QFile f(fname);
+    if (f.open(QIODevice::ReadOnly))
+    {
+        QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
+        QJsonArray elements = doc[element].toArray();
+
+        QStringList lst;
+        for (const QJsonValue &value : qAsConst(elements))
+            lst.append(value.toString());
+
+        model->setStringList(lst);
+    }
+    else
+        hr = false;
+
+    return hr;
 }
 
 void Globals::loadStreets()
 {
-    QFile f("msc_streets.json");
+    //QFile f("msc_streets.json");
 
     qCInfo(logCore()) << "Loading street list";
-    if (f.open(QIODevice::ReadOnly))
+    m_pStreetsModel.reset(new QStringListModel());
+
+    bool result = loadStringListModelJson("msc_streets.json", "streets", m_pStreetsModel.data());
+    if (!result)
+        throw ExceptionBase(tr("Не удалось загрузить список улиц"));
+    /*if (f.open(QIODevice::ReadOnly))
     {
-        m_pStreetsModel = new QStringListModel(this);
+        m_pStreetsModel.reset(new QStringListModel());
         QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
         QJsonArray streets = doc["streets"].toArray();
 
@@ -68,7 +98,34 @@ void Globals::loadStreets()
         m_pStreetsModel->setStringList(lst);
     }
     else
-        throw ExceptionBase(tr("Не удалось загрузить список улиц"));
+        throw ExceptionBase(tr("Не удалось загрузить список улиц"));*/
+}
+
+void Globals::loadNames()
+{
+    qCInfo(logCore()) << "Loading street list";
+    m_pNamesModel.reset(new QStringListModel());
+
+    bool result = loadStringListModelJson(":/tools/json/names.json", "names", m_pNamesModel.data());
+    if (!result)
+        throw ExceptionBase(tr("Не удалось загрузить список имен"));
+    /*QFile f(":/tools/json/names.json");
+
+    qCInfo(logCore()) << "Loading names list";
+    if (f.open(QIODevice::ReadOnly))
+    {
+        m_pNamesModel.reset(new QStringListModel());
+        QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
+        QJsonArray streets = doc["names"].toArray();
+
+        QStringList lst;
+        for (const QJsonValue &value : qAsConst(streets))
+            lst.append(value.toString());
+
+        m_pNamesModel->setStringList(lst);
+    }
+    else
+        throw ExceptionBase(tr("Не удалось загрузить список имен"));*/
 }
 
 void Globals::openDataBase()
@@ -81,6 +138,19 @@ void Globals::openDataBase()
         throw DbException(m_DB.lastError());
 }
 
+void Globals::registerInterfaces()
+{
+    qCInfo(logCore()) << "Register interfaces";
+    m_WindowsFactory.add<ViewPartyWindow>("application/all-person");
+    m_WindowsFactory.add<ViewClientsWindow>("application/clients");
+    m_WindowsFactory.add<RenovationTypeEditor>("application/renovationtype");
+}
+
+SubWindowBase *Globals::create(const QString &id, QWidget *widget) const
+{
+    return m_WindowsFactory.create(id, widget);
+}
+
 QSqlDatabase &Globals::db()
 {
     return m_DB;
@@ -88,5 +158,10 @@ QSqlDatabase &Globals::db()
 
 QAbstractItemModel *Globals::streetsModel()
 {
-    return m_pStreetsModel;
+    return m_pStreetsModel.data();
+}
+
+QAbstractItemModel *Globals::namesModel()
+{
+    return m_pNamesModel.data();
 }

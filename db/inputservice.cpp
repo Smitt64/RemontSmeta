@@ -4,6 +4,8 @@
 #include <QTextStream>
 #include <QSqlQuery>
 
+using namespace SqlTools;
+
 bool createMemoryTable(DbTable *table, QSqlDatabase m_Db)
 {
     QString sql;
@@ -23,7 +25,7 @@ bool createMemoryTable(DbTable *table, QSqlDatabase m_Db)
 
         stream << fld.name() << " " << fld.sqlType();
 
-        if (fld.type() == QVariant::String)
+        if (fld.type() == DbFieldBase::String)
             stream << QString("(%1)").arg(fld.size());
 
         if (primaryIndex.hasField(i))
@@ -173,14 +175,9 @@ bool InputServiceBase::start()
     return hr;
 }
 
-bool InputServiceBase::sync()
+bool InputServiceBase::deletePrivate()
 {
-    QSqlDatabase mainDb = QSqlDatabase::database();
-    qCInfo(logInputService()) << PTR_TO_HEX(this) << ": Sync";
-    bool hr = mainDb.transaction();
-    qCInfo(logSql()) << "Begin transaction:" << hr;
-
-    hr = deleteOldData();
+    bool hr = deleteOldData();
 
     if (hr)
     {
@@ -193,19 +190,41 @@ bool InputServiceBase::sync()
         }
     }
 
+    return hr;
+}
+
+bool InputServiceBase::delete_()
+{
+    QSqlDatabase mainDb = QSqlDatabase::database();
+    qCInfo(logInputService()) << PTR_TO_HEX(this) << ": Delete data";
+    bool hr = beginTransaction(mainDb);
+
+    if (hr)
+        hr = deletePrivate();
+
+    if (hr)
+        commitTransaction(mainDb);
+    else
+        rollbackTransaction(mainDb);
+
+    return hr;
+}
+
+bool InputServiceBase::sync()
+{
+    QSqlDatabase mainDb = QSqlDatabase::database();
+    qCInfo(logInputService()) << PTR_TO_HEX(this) << ": Sync";
+    bool hr = beginTransaction(mainDb);
+
+    hr = deletePrivate();
+
     if (hr)
         hr = syncData();
 
     if (hr)
-    {
-        hr = mainDb.commit();
-        qCInfo(logSql()) << "Commit transaction:" << hr;
-    }
+        commitTransaction(mainDb);
     else
-    {
-        hr = mainDb.rollback();
-        qCInfo(logSql()) << "Rollback transaction:" << hr;
-    }
+        rollbackTransaction(mainDb);
 
     return hr;
 }

@@ -10,16 +10,27 @@
 #include <QDate>
 #include <QPointer>
 
+namespace SqlTools
+{
 bool ExecuteQuery(QSqlQuery *query, QString *err)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QVariantList values = query->boundValues();
 
+    for (QVariantList::iterator i = values.begin(); i != values.end(); ++i)
+    {
+        qCInfo(logSql()) << std::distance(values.begin(), i) + 1 << ":" << *i;
+    }
+#else
     QMap<QString, QVariant> values = query->boundValues();
+
     QMapIterator<QString, QVariant> i(values);
     while(i.hasNext())
     {
         i.next();
-        qCInfo(logSql()) << i.key() << ": " << i.value();
+        qCInfo(logSql()) << i.key() << ":" << i.value();
     }
+#endif
 
     bool result = query->exec();
     if (!result)
@@ -35,6 +46,28 @@ bool ExecuteQuery(QSqlQuery *query, QString *err)
     return result;
 }
 
+bool beginTransaction(QSqlDatabase &_db)
+{
+    bool hr = _db.transaction();
+    qCInfo(logSql()) << "Begin transaction:" << hr;
+    return hr;
+}
+
+bool commitTransaction(QSqlDatabase &_db)
+{
+    bool hr = _db.commit();
+    qCInfo(logSql()) << "Commit transaction:" << hr;
+    return hr;
+}
+
+void rollbackTransaction(QSqlDatabase &_db)
+{
+    _db.rollback();
+    qCInfo(logSql()) << "Rollback transaction";
+}
+};
+
+using namespace SqlTools;
 // ------------------------------------------------
 
 int DbTableModelColumnProxy::columnCount(DbTable *table, const QModelIndex &parent) const
@@ -259,7 +292,7 @@ QVariant DbTable::value(const quint16 &id) const
     const DbFieldBase &fld = field(id);
     QSqlRecord *rec = m_Cache[m_recPos];
 
-    if (fld.type() == QVariant::Date)
+    if (fld.type() == DbFieldBase::Date)
         return QDate::fromJulianDay(rec->value(id).value<qint64>());
 
     QVariant val = rec->value(id);
@@ -282,7 +315,7 @@ void DbTable::setValue(const quint16 &id, const QVariant &val)
     QSqlRecord *rec = m_Cache[m_recPos];
 
     QVariant newValue;
-    if (fld.type() == QVariant::Date)
+    if (fld.type() == DbFieldBase::Date)
         newValue = val.toDate().toJulianDay();
     else
         newValue = val;
@@ -591,7 +624,14 @@ void DbTable::initSqlRecord(QSqlRecord **rec)
     *rec = new QSqlRecord();
 
     for (const DbFieldBase &fld : qAsConst(m_Fields))
-        (*rec)->append(QSqlField(fld.name(), fld.type()));
+    {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        QSqlField f = QSqlField(fld.name(), QMetaType(fld.qType()));
+#else
+        QSqlField f = QSqlField(fld.name(), fld.qType());
+#endif
+        (*rec)->append(f);
+    }
 }
 
 bool DbTable::newRecPrivate()
@@ -608,10 +648,10 @@ bool DbTable::newRecPrivate()
         const DbFieldBase &fld = m_Fields[i];
         switch(fld.type())
         {
-        case QVariant::Int:
+        case DbFieldBase::Int:
             m_Cache[m_recPos]->setValue(i, 0);
             break;
-        case QVariant::Date:
+        case DbFieldBase::Date:
             m_Cache[m_recPos]->setValue(i, 0);
             break;
         default:
@@ -881,11 +921,25 @@ bool DbTable::insertRows(int row, int count, const QModelIndex &parent)
     return hr;
 }
 
+bool DbTable::beginTransaction()
+{
+    return SqlTools::beginTransaction(m_Db);
+}
+
+bool DbTable::commitTransaction()
+{
+    return SqlTools::commitTransaction(m_Db);
+}
+
+void DbTable::rollbackTransaction()
+{
+    SqlTools::rollbackTransaction(m_Db);
+}
+
 bool DbTable::submit()
 {
     qCInfo(logDbTable()) << PTR_TO_HEX(this) << ": Submit. Connection" << m_Db.connectionName();
-    bool hr = m_Db.transaction();
-    qCInfo(logSql()) << "Begin transaction:" << hr;
+    bool hr = beginTransaction();
 
     ActionMap::key_type saveRecPos = m_recPos;
     QList<ActionMap::key_type> cachedKeys = m_RecordActions.keys();
@@ -925,15 +979,9 @@ bool DbTable::submit()
         m_recPos = saveRecPos;
 
     if (hr)
-    {
-        hr = m_Db.commit();
-        qCInfo(logSql()) << "Commit transaction:" << hr;
-    }
+        hr = commitTransaction();
     else
-    {
-        m_Db.rollback();
-        qCInfo(logSql()) << "Rollback transaction";
-    }
+        rollbackTransaction();
 
     qCInfo(logDbTable()) << PTR_TO_HEX(this) << ": Submit. Status:" << hr;
 

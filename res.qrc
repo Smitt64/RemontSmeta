@@ -31,8 +31,21 @@
         <file>images/dark-icons/16x16/actions/AddTeamProjectCollection.png</file>
         <file>images/dark-icons/16x16/actions/OpenBase.png</file>
         <file>images/dark-icons/16x16/actions/OpenTeamProjectCollection.png</file>
+        <file>images/dark-icons/16x16/actions/RemoveTeam.png</file>
+        <file>images/dark-icons/16x16/actions/EditTeam.png</file>
+        <file>images/dark-icons/16x16/actions/ViewInBrowser.png</file>
+        <file>images/dark-icons/16x16/actions/ViewTeam.png</file>
+        <file>images/dark-icons/16x16/applets/RenovationType.png</file>
+        <file>images/dark-icons/16x16/actions/GoToFirst.png</file>
+        <file>images/dark-icons/16x16/actions/GoToLast.png</file>
+        <file>images/dark-icons/16x16/actions/GoToNext.png</file>
+        <file>images/dark-icons/16x16/actions/GoToPrevious.png</file>
+        <file>images/dark-icons/16x16/actions/NewRow.png</file>
+        <file>images/dark-icons/16x16/actions/RemoveRow.png</file>
+        <file>images/dark-icons/16x16/actions/SaveTable.png</file>
     </qresource>
     <qresource prefix="/tools">
         <file>json/navigation.json</file>
+        <file>json/names.json</file>
     </qresource>
 </RCC>

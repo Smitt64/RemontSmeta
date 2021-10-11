@@ -5,6 +5,10 @@
 
 class QDockWidget;
 class QMdiArea;
+class QStatusBar;
+class QComboBox;
+class SubWindowsModel;
+class SubWindowBase;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -15,15 +19,24 @@ public:
 
 private slots:
     void addClientAction();
+    void subWindowRequestNewWindow(QWidget *widget);
     void navigationClicked(const QString &mime);
 
 private:
     void setupDocks();
     void setupMenus();
+    void setupStatusBar();
+    void setupWindowsList();
+    void addWindowPrivate(SubWindowBase *wnd);
+
     QDockWidget *m_pClientsDock;
+    QStatusBar *m_pStatusBar;
     QMdiArea *m_pMdiArea;
     QMenuBar *m_MainMenuBar;
-    QMenu *m_DictionaryMenu;
+    QMenu *m_DictionaryMenu, *m_ViewMenu;
+
+    QScopedPointer<SubWindowsModel> m_WindowsModel;
+    QScopedPointer<QMenu> m_WindowsMenu;
 };
 
 #endif // MAINWINDOW_H
