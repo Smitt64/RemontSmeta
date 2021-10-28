@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
     }
     catch (ExceptionBase &e)
     {
+        qCritical(logCore()) << e.what();
         QMessageBox::critical(&splash, QObject::tr("Исключение"), e.what());
     }
     splash.finish(&w);

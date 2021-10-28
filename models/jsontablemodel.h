@@ -23,7 +23,7 @@ public:
     JsonTableModel(QObject *parent = nullptr);
     virtual ~JsonTableModel();
 
-    bool open(const QString &filename);
+    bool open(const QString &filename, bool logopenmsg = true);
 
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
@@ -40,10 +40,32 @@ public:
     ColumnType columnType(const quint16 &column) const;
     QSizeF columnMinMax(const quint16 &column) const;
 
+    bool hasChanges() const;
+
+    qint16 columnAutoinc() const;
+    quint32 nextAutoinc() const;
+
+    const QString &metaTitle() const;
+
+protected:
+    virtual bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) Q_DECL_OVERRIDE;
+
+public slots:
+    void revertChanges();
+    void applyChanges();
+    bool save();
+
+signals:
+    void editStateChanged();
+
 private:
     void readElements(const QJsonArray &arr);
+    void readMetaData(const QJsonValue &obj);
     QVector<JsonTableColumn*> m_Columns;
     QScopedPointer<JsonTableModelData> m_Data;
+
+    QScopedPointer<QJsonValue> m_JsonColumns, m_MetaData;
+    QString m_Title;
 };
 
 #endif // JSONTABLEMODEL_H

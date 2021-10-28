@@ -1,8 +1,11 @@
-QT += core gui sql
+QT += core gui sql qml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++17
+CONFIG += c++17 qml_debug
+DESTDIR = bin
+
+DEFINES += QT_QML_DEBUG
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -11,6 +14,9 @@ CONFIG += c++17
 SOURCES += \
     clientswindow/clientsviewmodel.cpp \
     clientswindow/viewpartywindow.cpp \
+    db/dbtableformat.cpp \
+    jsclasses/jsclassexecuter.cpp \
+    jsclasses/jsconsole.cpp \
     widgets/columnalignedlayout.cpp \
     db/dbexception.cpp \
     db/dbtable.cpp \
@@ -31,17 +37,20 @@ SOURCES += \
     person/tpersonservice.cpp \
     person/personpanel.cpp \
     reference/jsonmodeleditor.cpp \
-    reference/renovationtypeeditor.cpp \
     renovationpanel.cpp \
     subwindowbase.cpp \
     tables/renovation.cpp \
     tables/tclient.cpp \
-    widgets/filteredtablewidget.cpp
+    widgets/filteredtablewidget.cpp \
+    widgets/selectpartydlg.cpp
 
 HEADERS += \
     FactoryTemplate.h \
     clientswindow/clientsviewmodel.h \
     clientswindow/viewpartywindow.h \
+    db/dbtableformat.hpp \
+    jsclasses/jsclassexecuter.h \
+    jsclasses/jsconsole.h \
     widgets/columnalignedlayout.h \
     db/DbField.hpp \
     db/dbexception.h \
@@ -63,18 +72,19 @@ HEADERS += \
     person/tpersonservice.h \
     person/personpanel.h \
     reference/jsonmodeleditor.h \
-    reference/renovationtypeeditor.h \
     renovationpanel.h \
     subwindowbase.h \
     tables/renovation.h \
     tables/tclient.h \
     typelist.hpp \
-    widgets/filteredtablewidget.h
+    widgets/filteredtablewidget.h \
+    widgets/selectpartydlg.h
 
 FORMS += \
     editstringdialog.ui \
     person/personpanel.ui \
-    renovationpanel.ui
+    renovationpanel.ui \
+    widgets/selectpartydlg.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

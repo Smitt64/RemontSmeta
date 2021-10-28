@@ -1,13 +1,14 @@
 #include "loggingcategories.h"
 #include "tclient.h"
 #include "person/tpersonservice.h"
+#include "db/dbtableformat.hpp"
 #include <QtCore>
 #include <QIcon>
 
 TPerson::TPerson(QSqlDatabase _db) :
     DbTable("dperson_dbt", _db)
 {
-    DB_BEGIN_DEFINE
+    /*DB_BEGIN_DEFINE
         DB_ADD_FIELD(int,"t_id"),
         DB_ADD_SFIELD(QString,"t_family", 155),
         DB_ADD_SFIELD(QString,"t_name", 155),
@@ -21,7 +22,7 @@ TPerson::TPerson(QSqlDatabase _db) :
         DB_ADD_AUTOINC_INDEX({0})
     DB_END_INDEX;
 
-    DB_SET_PRIMARY_INDEX(0);
+    DB_SET_PRIMARY_INDEX(0);*/
 }
 
 TPerson::~TPerson()
@@ -97,7 +98,7 @@ bool TPerson::deletePerson(const quint16 &id)
 TContact::TContact(QSqlDatabase _db) :
     DbTable("dcontact_dbt", _db)
 {
-    DB_BEGIN_DEFINE
+    /*DB_BEGIN_DEFINE
         DB_ADD_FIELD(int,"t_id"),
         DB_ADD_FIELD(int,"t_personid"),
         DB_ADD_FIELD(int,"t_type"),
@@ -109,7 +110,7 @@ TContact::TContact(QSqlDatabase _db) :
         DB_ADD_INDEX({1})
     DB_END_INDEX;
 
-    DB_SET_PRIMARY_INDEX(0);
+    DB_SET_PRIMARY_INDEX(0);*/
 }
 
 TContact::~TContact()
@@ -122,7 +123,7 @@ TContact::~TContact()
 TAdress::TAdress(QSqlDatabase _db) :
     DbTable("daddress_dbt", _db)
 {
-    DB_BEGIN_DEFINE
+    /*DB_BEGIN_DEFINE
         DB_ADD_FIELD(int,"t_id"),
         DB_ADD_FIELD(int,"t_personid"),
         DB_ADD_SFIELD(QString,"t_address", 512)
@@ -133,7 +134,7 @@ TAdress::TAdress(QSqlDatabase _db) :
         DB_ADD_INDEX({1})
     DB_END_INDEX;
 
-    DB_SET_PRIMARY_INDEX(0);
+    DB_SET_PRIMARY_INDEX(0);*/
 }
 
 TAdress::~TAdress()
@@ -146,7 +147,7 @@ TAdress::~TAdress()
 TPersonOwn::TPersonOwn(QSqlDatabase _db) :
     DbTable("dpersonown_dbt", _db)
 {
-    DB_BEGIN_DEFINE
+    /*DB_BEGIN_DEFINE
         DB_ADD_FIELD(int,"t_id"),
         DB_ADD_FIELD(int,"t_personid"),
         DB_ADD_FIELD(int,"t_kind")
@@ -158,7 +159,7 @@ TPersonOwn::TPersonOwn(QSqlDatabase _db) :
         DB_ADD_UNIQ_INDEX(QVector<quint16>() << 1 << 2)
     DB_END_INDEX;
 
-    DB_SET_PRIMARY_INDEX(0);
+    DB_SET_PRIMARY_INDEX(0);*/
 }
 
 TPersonOwn::~TPersonOwn()

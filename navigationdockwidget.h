@@ -15,7 +15,7 @@ public:
     virtual ~NavigationDockWidgetArea();
 
 Q_SIGNALS:
-    void itemClicked(const QString &mime);
+    void itemClicked(const QString &mime, const QString &param, const QIcon &icon);
 
 private slots:
     void customContextMenuRequested(const QPoint &pos);
@@ -34,7 +34,7 @@ public:
     virtual ~NavigationDockWidget();
 
 Q_SIGNALS:
-    void itemClicked(const QString &mime);
+    void itemClicked(const QString &mime, const QString &param, const QIcon &icon);
 
 private:
     NavigationDockWidgetArea *m_pClientArea;

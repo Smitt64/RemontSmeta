@@ -1,0 +1,44 @@
+{
+    "metadata" : {
+        "title" : "Акции и скидки"
+    },
+
+    "columns" : [
+        {
+            "name" : "id",
+            "title" : "№",
+            "type" : "autoinc",
+            "editable" : false,
+            "width" : 25
+        },
+        {
+            "name" : "name",
+            "title" : "Наименование",
+            "type" : "string",
+            "min" : 1,
+            "max" : 100,
+            "width" : 300
+        },
+        {
+            "name" : "factor",
+            "title" : "Коэффициент",
+            "type" : "real",
+            "min" : 0.1,
+            "max" : 10,
+            "default" : 0
+        }
+    ],
+
+    "elements" : [
+        {
+            "id" : "0",
+            "name" : "Нет",
+            "factor" : 0
+        },
+        {
+            "id" : "1",
+            "name" : "Льготники",
+            "factor" : 0.33
+        }
+    ]
+}

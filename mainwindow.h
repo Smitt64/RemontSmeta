@@ -12,7 +12,7 @@ class SubWindowBase;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
+    friend class SubWindowsMenu;
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -20,7 +20,8 @@ public:
 private slots:
     void addClientAction();
     void subWindowRequestNewWindow(QWidget *widget);
-    void navigationClicked(const QString &mime);
+    void navigationClicked(const QString &mime, const QString &param, const QIcon &icon);
+    void currentWindowSelected(const int &index);
 
 private:
     void setupDocks();

@@ -1,0 +1,176 @@
+{
+    "tables": [
+        {
+            "name": "drenovation_dbt",
+            "primaryindex": 0,
+
+            "fields": [
+                {
+                    "name": "t_id",
+                    "type": "autoinc"
+                },
+                {
+                    "name": "t_personid",
+                    "type": "integer"
+                },
+                {
+                    "name": "t_type",
+                    "type": "integer",
+                    "comment": "Тип ремонта"
+                },
+                {
+                    "name": "t_dateprep",
+                    "type": "date",
+                    "comment": "Дата составления"
+                },
+                {
+                    "name": "t_docnumber",
+                    "type": "string",
+                    "size": 100,
+                    "comment": "Приложение №1 к договору №"
+                },
+                {
+                    "name": "t_housetype",
+                    "type": "integer",
+                    "comment": "Тип дома"
+                },
+                {
+                    "name": "t_stock",
+                    "type": "integer",
+                    "comment": "Акция"
+                }
+            ],
+
+            "indices": [
+                {
+                    "uniq" : true,
+                    "fields": ["t_id"]
+                },
+                {
+                    "fields": ["t_personid"]
+                }
+            ]
+        },
+        {
+            "name": "droom_dbt",
+            "primaryindex": 0,
+
+            "fields": [
+                {
+                    "name": "t_id",
+                    "type": "autoinc"
+                },
+                {
+                    "name": "t_renovation",
+                    "type": "integer"
+                },
+                {
+                    "name": "t_name",
+                    "type": "string",
+                    "size": 150,
+                    "comment": "Название помещения"
+                },
+                {
+                    "name": "t_shape",
+                    "type": "integer",
+                    "comment": "Форма помещения"
+                },
+                {
+                    "name": "t_length",
+                    "type": "real",
+                    "comment": "Длина помещения / Площадь пола"
+                },
+                {
+                    "name": "t_width",
+                    "type": "real",
+                    "comment": "Ширина помещения / Площадь стен до вычета проемов"
+                },
+                {
+                    "name": "t_height",
+                    "type": "real",
+                    "comment": "Высота до потолка / Перемиметр пола"
+                },
+                {
+                    "name": "t_door_width",
+                    "type": "real",
+                    "comment": "Ширина двер проема"
+                },
+                {
+                    "name": "t_door_height",
+                    "type": "real",
+                    "comment": "Высота двер проема"
+                },
+                {
+                    "name": "t_door_depth",
+                    "type": "real",
+                    "comment": "Глубина двер проема"
+                },
+                {
+                    "name": "t_window_width",
+                    "type": "real",
+                    "comment": "Ширина окон блока"
+                },
+                {
+                    "name": "t_window_height",
+                    "type": "real",
+                    "comment": "Высота окон блока"
+                },
+                {
+                    "name": "t_window_depth",
+                    "type": "real",
+                    "comment": "Глубина окон блока"
+                },
+                {
+                    "name": "t_floor_area",
+                    "type": "real",
+                    "comment": "Площад пола"
+                },
+                {
+                    "name": "t_celing_area",
+                    "type": "real",
+                    "comment": "Площад потолка"
+                },
+                {
+                    "name": "t_wall_area_aopens",
+                    "type": "real",
+                    "comment": "Площад стен после вычета проемов"
+                },
+                {
+                    "name": "t_door_area",
+                    "type": "real",
+                    "comment": "Площадь дверного проема"
+                },
+                {
+                    "name": "t_window_area",
+                    "type": "real",
+                    "comment": "Площадь оконного проема"
+                },
+                {
+                    "name": "t_window_area",
+                    "type": "real",
+                    "comment": "Площадь оконного проема"
+                },
+                {
+                    "name": "t_floor_perimeter",
+                    "type": "real",
+                    "comment": "Периметр пола"
+                },
+                {
+                    "name": "t_window_slopes",
+                    "type": "real",
+                    "comment": "Оконные откосы"
+                }
+            ],
+
+            "indices": [
+                {
+                    "uniq" : true,
+                    "fields": ["t_id"]
+                },
+                {
+                    "fields": ["t_renovation"]
+                }
+            ]
+        }
+    ]
+}

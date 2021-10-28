@@ -28,3 +28,13 @@ void SubWindowBase::setActionTextAndStatus(QAction *action, const QString &str)
     action->setText(str);
     action->setStatusTip(str);
 }
+
+void SubWindowBase::setParam(const QString &param)
+{
+    m_Param = param;
+}
+
+const QString &SubWindowBase::param() const
+{
+    return m_Param;
+}

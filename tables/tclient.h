@@ -2,6 +2,7 @@
 #define TCLIENT_H
 
 #include "db/dbtable.h"
+#include "db/dbtableformat.hpp"
 #include <QVariant>
 #include <QSqlDatabase>
 

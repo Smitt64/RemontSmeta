@@ -1,5 +1,6 @@
 #include "dbtablebaseproxymodel.h"
 #include "db/dbtable.h"
+#include "db/dbtableformat.hpp"
 
 DbTableBaseProxyModel::DbTableBaseProxyModel(DbTable *table, QObject *parent) :
     QAbstractProxyModel(parent),

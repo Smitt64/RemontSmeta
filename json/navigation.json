@@ -7,19 +7,6 @@
 
             "elements": [
                 {
-                    "title": "Ремонты",
-                    "icon": "Repair",
-                    "mime": "application/repair"
-                }
-            ]
-        },
-        {
-            "title": "Справочники",
-            "icon": "ReferenceFolder",
-            "mime": "application/reference",
-
-            "elements": [
-                {
                     "title": "Клиенты",
                     "icon": "TeamProjectCollection",
                     "mime": "application/clients",
@@ -39,6 +26,19 @@
                     ]
                 },
                 {
+                    "title": "Ремонты",
+                    "icon": "Repair",
+                    "mime": "application/repair"
+                }
+            ]
+        },
+        {
+            "title": "Справочники",
+            "icon": "ReferenceFolder",
+            "mime": "application/reference",
+
+            "elements": [
+                {
                     "title": "Все субъекты",
                     "icon": "Team",
                     "mime": "application/all-person"
@@ -46,7 +46,153 @@
                 {
                     "title": "Типы ремонта",
                     "icon": "RenovationType",
-                    "mime": "application/renovationtype"
+                    "mime": "application/jsonmodel",
+                    "param": "json/models/renovation_type.json" 
+                },
+                {
+                    "title": "Имена",
+                    "icon": "ContactCard",
+                    "mime": "application/jsonmodel",
+                    "param": "json/models/names.json" 
+                },
+                {
+                    "title": "Улицы",
+                    "icon": "Address",
+                    "mime": "application/jsonmodel",
+                    "param": "json/models/msc_streets.json" 
+                },
+                {
+                    "title": "Акции и скидки",
+                    "icon": "PromoteLocal",
+                    "mime": "application/jsonmodel",
+                    "param": "json/models/promotions.json" 
+                },
+                {
+                    "title": "Тип дома",
+                    "icon": "Build12",
+                    "mime": "application/jsonmodel",
+                    "param": "json/models/buildtype.json" 
+                },
+                {
+                    "title": "Черновые работы",
+                    "icon": "GroupClauseDark",
+                    "statustip" : "Черновые работы",
+
+                    "elements": [
+                        {
+                            "title": "Потолок",
+                            "icon": "TopOf2Rows",
+                            "mime": "application/jsonmodel",
+                            "param": "json/models/rough_ceiling.json",
+                            "statustip" : "Черновые работы (Потолок)"
+                        },
+                        {
+                            "title": "Стены",
+                            "icon": "AppearanceTabSolid",
+                            "mime": "application/jsonmodel",
+                            "param": "json/models/rough_wall.json",
+                            "statustip" : "Черновые работы (Стены)"
+                        },
+                        {
+                            "title": "Пол",
+                            "icon": "BottomOf2Rows",
+                            "mime": "application/jsonmodel",
+                            "param": "json/models/rough_floor.json",
+                            "statustip" : "Черновые работы (Пол)"
+                        },
+                        {
+                            "title": "Перегородки",
+                            "icon": "AppearanceTabNone",
+                            "mime": "application/jsonmodel",
+                            "param": "json/models/rough_partition.json",
+                            "statustip" : "Черновые работы (Перегородки)"
+                        }
+                    ]
+                },
+                {
+                    "title": "Чистовые работы",
+                    "icon": "GroupClause",
+                    "statustip" : "Чистовые работы",
+
+                    "elements": [
+                        {
+                            "title": "Потолок",
+                            "icon": "TopOf2Rows",
+                            "mime": "application/jsonmodel",
+                            "param": "json/models/finishing_ceiling.json",
+                            "statustip" : "Чистовые работы (Потолок)"
+                        },
+                        {
+                            "title": "Карниз",
+                            "icon": "LineMarker",
+                            "mime": "application/jsonmodel",
+                            "param": "json/models/finishing_cornice.json",
+                            "statustip" : "Чистовые работы (Карниз)"
+                        },
+                        {
+                            "title": "Галтели",
+                            "icon": "Galtel",
+                            "mime": "application/jsonmodel",
+                            "param": "json/models/finishing_galteli.json",
+                            "statustip" : "Чистовые работы (Галтели)"
+                        },
+                        {
+                            "title": "Стены",
+                            "icon": "AppearanceTabSolid",
+                            "mime": "application/jsonmodel",
+                            "param": "json/models/finishing_wall.json",
+                            "statustip" : "Чистовые работы (Стены)"
+                        },
+                        {
+                            "title": "Откосы",
+                            "icon": "Slope",
+                            "mime": "application/jsonmodel",
+                            "param": "json/models/finishing_slopes.json",
+                            "statustip" : "Чистовые работы (Откосы)"
+                        },
+                        {
+                            "title": "Подоконник",
+                            "icon": "Windowsill",
+                            "mime": "application/jsonmodel",
+                            "param": "json/models/finishing_windowsill.json",
+                            "statustip" : "Чистовые работы (Подоконник)"
+                        },
+                        {
+                            "title": "Пол",
+                            "icon": "BottomOf2Rows",
+                            "mime": "application/jsonmodel",
+                            "param": "json/models/finishing_floor.json",
+                            "statustip" : "Чистовые работы (Пол)"
+                        },
+                        {
+                            "title": "Плинтус",
+                            "icon": "Plinth",
+                            "mime": "application/jsonmodel",
+                            "param": "json/models/finishing_plinth.json",
+                            "statustip" : "Чистовые работы (Плинтус)"
+                        },
+                        {
+                            "title": "Порог",
+                            "icon": "Threshold",
+                            "mime": "application/jsonmodel",
+                            "param": "json/models/finishing_threshold.json",
+                            "statustip" : "Чистовые работы (Порог)"
+                        },
+                        {
+                            "title": "Радиатор",
+                            "icon": "Radiator",
+                            "mime": "application/jsonmodel",
+                            "param": "json/models/finishing_radiator.json",
+                            "statustip" : "Чистовые работы (Радиатор)"
+                        },
+                        {
+                            "title": "Двери",
+                            "icon": "Door",
+                            "mime": "application/jsonmodel",
+                            "param": "json/models/finishing_door.json",
+                            "statustip" : "Чистовые работы (Двери)"
+                        }
+                    ]
                 }
             ]
         }

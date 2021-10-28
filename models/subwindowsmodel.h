@@ -13,6 +13,7 @@ public:
 
     QModelIndex addWindow(QMdiSubWindow *wnd);
     QMdiSubWindow *window(const QModelIndex &index);
+    QMdiSubWindow *window(const int &index);
 
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;

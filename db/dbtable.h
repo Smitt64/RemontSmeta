@@ -2,6 +2,7 @@
 #define DBTABLE_H
 
 #include "DbField.hpp"
+#include "db/dbtableformat.hpp"
 #include <QVector>
 #include <QAbstractTableModel>
 #include <QSqlDatabase>
@@ -20,31 +21,9 @@ namespace SqlTools
     void rollbackTransaction(QSqlDatabase &_db);
 };
 
-class DbTable;
-class DbTableIndex
-{
-    friend class DbTable;
-public:
-    DbTableIndex(DbTable *parent, const QVector<quint16> &fldid, const bool &uniq = false, const bool &autoinc = false);
-    virtual ~DbTableIndex();
-
-    bool hasField(const quint16 &fld) const;
-
-    const bool &isAutoInc() const;
-    const bool &isUniq() const;
-
-    const quint16 &field(const quint16 &id) const;
-    quint16 count() const;
-
-
-private:
-    DbTable *m_Parent;
-    bool m_AutoInc, m_Uniq;
-    QVector<quint16> m_Fld;
-};
 
 // ------------------------------------------------
-
+class DbTable;
 class DbTableHandler
 {
 public:
@@ -69,38 +48,39 @@ public:
 
 class QSqlQuery;
 class QSqlRecord;
+class DbTableIndex;
 class DbTable : public QAbstractTableModel
 {
     Q_OBJECT
     friend class DbTableModelColumnProxy;
 public:
-    DbTable(const QString &name, QSqlDatabase _db = QSqlDatabase::database());
+    DbTable(const QString &name, QSqlDatabase _db = QSqlDatabase::database()) noexcept(false);
     virtual ~DbTable();
 
-    const QString &name() const;
-    const DbFieldBase &field(const quint16 &id) const;
-    const DbFieldBase &field(const QString &id) const;
-    const DbTableIndex &indexx(const quint16 &id) const;
-    const qint16 &primaryIndex() const;
+    Q_INVOKABLE QString name() const;
+    Q_INVOKABLE const DbFieldBase &field(const quint16 &id) const;
+    Q_INVOKABLE const DbFieldBase &field(const QString &id) const;
+    Q_INVOKABLE const DbTableIndex &indexx(const quint16 &id) const;
+    Q_INVOKABLE qint16 primaryIndex() const;
     std::optional<DbTableIndex> aincIndex() const;
-    quint16 fieldNum(const QString &name) const;
+    Q_INVOKABLE quint16 fieldNum(const QString &name) const;
 
-    bool find(const quint16 &index, const QVariantList &keys);
+    Q_INVOKABLE bool find(const quint16 &index, const QVariantList &keys);
     bool find(const DbTableIndex *index, const QVariantList &keys);
-    bool selectAll();
+    Q_INVOKABLE bool selectAll();
 
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
+    Q_INVOKABLE virtual int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
+    Q_INVOKABLE virtual int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
     virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) Q_DECL_OVERRIDE;
     virtual Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;
 
-    QVariant value(const quint16 &id) const;
-    QVariant value(const QString &id) const;
+    Q_INVOKABLE QVariant value(const quint16 &id) const;
+    Q_INVOKABLE QVariant value(const QString &id) const;
 
-    void setValue(const quint16 &id, const QVariant &val);
-    void setValue(const QString &id, const QVariant &val);
+    Q_INVOKABLE void setValue(const quint16 &id, const QVariant &val);
+    Q_INVOKABLE void setValue(const QString &id, const QVariant &val);
 
     QVariant operator[](const quint16 &id);
     QVariant operator[](const QString &id);
@@ -109,25 +89,25 @@ public:
     QSqlRecord recordBefore() const;
     void setRecord(const QSqlRecord &rec);
 
-    bool next();
-    bool previous();
-    bool first();
-    bool last();
-    bool seek(const quint16 &index);
+    Q_INVOKABLE bool next();
+    Q_INVOKABLE bool previous();
+    Q_INVOKABLE bool first();
+    Q_INVOKABLE bool last();
+    Q_INVOKABLE bool seek(const quint16 &index);
 
-    bool newRec();
-    bool update();
-    bool insert();
-    bool delete_();
-    bool delete_(const quint16 &index, const QVariantList &keys);
+    Q_INVOKABLE bool newRec();
+    Q_INVOKABLE bool update();
+    Q_INVOKABLE bool insert();
+    Q_INVOKABLE bool delete_();
+    Q_INVOKABLE bool delete_(const quint16 &index, const QVariantList &keys);
 
     void setHandler(DbTableHandler *handler);
     void setProxy(DbTableModelColumnProxy *proxy);
 
-    quint16 lastInsertRowId();
+    Q_INVOKABLE quint16 lastInsertRowId();
 
-    virtual bool submit() Q_DECL_OVERRIDE;
-    virtual bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) Q_DECL_OVERRIDE;
+    Q_INVOKABLE virtual bool submit() Q_DECL_OVERRIDE;
+    Q_INVOKABLE virtual bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) Q_DECL_OVERRIDE;
     void sendDataChanged(const QModelIndex &index);
 
 protected:
@@ -183,16 +163,18 @@ private:
     bool m_SkipModelProxy;
 };
 
-#define DB_BEGIN_DEFINE m_Fields = {
-#define DB_ADD_FIELD(type, name) DbField<type>(name)
-#define DB_ADD_SFIELD(type, name, size) DbField<type>(name, size)
-#define DB_END_DEFINE }; fillFieldsNameIds()
+Q_DECLARE_METATYPE(DbTableIndex)
 
-#define DB_BEGIN_INDEX m_Indeces = {
-#define DB_ADD_INDEX(values) DbTableIndex(this, values)
-#define DB_ADD_UNIQ_INDEX(values) DbTableIndex(this, values, true)
-#define DB_ADD_AUTOINC_INDEX(values) DbTableIndex(this, values, true, true)
-#define DB_END_INDEX }
-#define DB_SET_PRIMARY_INDEX(index) m_PrimaryIndex = index
+#define DB_BEGIN_DEFINE //m_Fields = {
+#define DB_ADD_FIELD(type, name) //DbField<type>(name)
+#define DB_ADD_SFIELD(type, name, size) //DbField<type>(name, size)
+#define DB_END_DEFINE //}; fillFieldsNameIds()
+
+#define DB_BEGIN_INDEX m_Indeces //= {
+#define DB_ADD_INDEX(values) //DbTableIndex(values)
+#define DB_ADD_UNIQ_INDEX(values)// DbTableIndex(values, true)
+#define DB_ADD_AUTOINC_INDEX(values) //DbTableIndex(values, true, true)
+#define DB_END_INDEX //}
+#define DB_SET_PRIMARY_INDEX(index)// m_PrimaryIndex = index
 
 #endif // DBTABLE_H

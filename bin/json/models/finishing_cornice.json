@@ -1,0 +1,34 @@
+{
+    "metadata" : {
+        "title" : "Чистовые работы (Карниз)"
+    },
+
+    "columns" : [
+        {
+            "name" : "id",
+            "title" : "№",
+            "type" : "autoinc",
+            "editable" : false,
+            "width" : 25
+        },
+        {
+            "name" : "name",
+            "title" : "Наименование",
+            "type" : "string",
+            "min" : 1,
+            "max" : 100,
+            "width" : 300
+        }
+    ],
+
+    "elements" : [
+        {
+            "id" : "1",
+            "name" : "Потолочный"
+        },
+        {
+            "id" : "2",
+            "name" : "Настенный"
+        }
+    ]
+}

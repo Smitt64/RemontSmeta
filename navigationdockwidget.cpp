@@ -23,6 +23,7 @@ public:
     {
         RoleMime = Qt::UserRole + 1,
         RoleActions,
+        RoleParam
     };
 
     NavigationModel(QObject *parent = nullptr) :
@@ -60,6 +61,7 @@ private:
         QString icon = obj["icon"].toString();
         QString mime = obj["mime"].toString();
         QString statustip = obj["statustip"].toString();
+        QString param = obj["param"].toString();
 
         TreeItem *item = new TreeItem({title}, parent);
         parent->appendChild(item);
@@ -72,6 +74,9 @@ private:
 
         if (!statustip.isEmpty())
             item->setRoleData(0, Qt::StatusTipRole, statustip);
+
+        if (!param.isEmpty())
+            item->setRoleData(0, NavigationModel::RoleParam, param);
 
         if (obj.contains("actions"))
         {
@@ -170,8 +175,9 @@ void NavigationDockWidgetArea::customContextMenuRequested(const QPoint &pos)
 void NavigationDockWidgetArea::doubleClicked(const QModelIndex &index)
 {
     QString mime = m_pModel->data(index, NavigationModel::RoleMime).toString();
-    itemClicked(mime);
-
+    QString param = m_pModel->data(index, NavigationModel::RoleParam).toString();
+    QIcon icon = m_pModel->data(index, Qt::DecorationRole).value<QIcon>();
+    itemClicked(mime, param, icon);
 }
 // --------------------------------------------------------------------------
 
@@ -185,7 +191,7 @@ NavigationDockWidget::NavigationDockWidget(QWidget *parent) :
     setWidget(m_pClientArea);
     setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-    connect(m_pClientArea, SIGNAL(itemClicked(QString)), this, SIGNAL(itemClicked(QString)));
+    connect(m_pClientArea, SIGNAL(itemClicked(QString,QString,QIcon)), this, SIGNAL(itemClicked(QString,QString,QIcon)));
 }
 
 NavigationDockWidget::~NavigationDockWidget()

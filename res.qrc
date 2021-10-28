@@ -43,9 +43,34 @@
         <file>images/dark-icons/16x16/actions/NewRow.png</file>
         <file>images/dark-icons/16x16/actions/RemoveRow.png</file>
         <file>images/dark-icons/16x16/actions/SaveTable.png</file>
+        <file>images/dark-icons/16x16/applets/Table.png</file>
+        <file>images/dark-icons/16x16/actions/Apply.png</file>
+        <file>images/dark-icons/16x16/actions/ApplyTable.png</file>
+        <file>images/dark-icons/16x16/actions/RevertTable.png</file>
+        <file>images/dark-icons/16x16/applets/Filter.png</file>
+        <file>images/dark-icons/16x16/actions/Clear.png</file>
+        <file>images/dark-icons/16x16/actions/ClearFilter.png</file>
+        <file>images/dark-icons/16x16/applets/ContactCard.png</file>
+        <file>images/dark-icons/16x16/applets/PromoteLocal.png</file>
+        <file>images/dark-icons/16x16/applets/Build12.png</file>
+        <file>images/dark-icons/16x16/applets/GroupClause.png</file>
+        <file>images/dark-icons/16x16/applets/GroupClauseDark.png</file>
+        <file>images/dark-icons/16x16/applets/TopOf2Rows.png</file>
+        <file>images/dark-icons/16x16/applets/BottomOf2Rows.png</file>
+        <file>images/dark-icons/16x16/actions/AddRow.png</file>
+        <file>images/dark-icons/16x16/applets/AppearanceTabNone.png</file>
+        <file>images/dark-icons/16x16/applets/AppearanceTabSolid.png</file>
+        <file>images/dark-icons/16x16/applets/TableError.png</file>
+        <file>images/dark-icons/16x16/applets/LineMarker.png</file>
+        <file>images/dark-icons/16x16/applets/Galtel.png</file>
+        <file>images/dark-icons/16x16/applets/Slope.png</file>
+        <file>images/dark-icons/16x16/applets/Windowsill.png</file>
+        <file>images/dark-icons/16x16/applets/Plinth.png</file>
+        <file>images/dark-icons/16x16/applets/Threshold.png</file>
+        <file>images/dark-icons/16x16/applets/Radiator.png</file>
+        <file>images/dark-icons/16x16/applets/Door.png</file>
     </qresource>
     <qresource prefix="/tools">
         <file>json/navigation.json</file>
-        <file>json/names.json</file>
     </qresource>
 </RCC>

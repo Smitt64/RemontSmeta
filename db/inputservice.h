@@ -2,6 +2,7 @@
 #define INPUTSERVICE_H
 
 #include "db/dbtable.h"
+#include "db/dbtableformat.hpp"
 #include "loggingcategories.h"
 #include <QSqlDatabase>
 #include <QList>

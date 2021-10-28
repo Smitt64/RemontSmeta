@@ -1,6 +1,9 @@
 #include "dbtable.h"
 #include "loggingcategories.h"
+#include "db/dbtableformat.hpp"
 #include "globals.h"
+#include "exceptionbase.h"
+#include <iterator>
 #include <QTextStream>
 #include <QSqlQuery>
 #include <QSqlResult>
@@ -95,46 +98,6 @@ bool DbTableModelColumnProxy::setData(DbTable *table, const QModelIndex &index, 
     return table->setData(index, value, role);
 }
 
-// ------------------------------------------------
-
-DbTableIndex::DbTableIndex(DbTable *parent, const QVector<quint16> &fldid, const bool &uniq, const bool &autoinc) :
-    m_Parent(parent),
-    m_AutoInc(autoinc),
-    m_Uniq(uniq),
-    m_Fld(fldid)
-{
-}
-
-DbTableIndex::~DbTableIndex()
-{
-}
-
-bool DbTableIndex::hasField(const quint16 &fld) const
-{
-    return m_Fld.contains(fld);
-}
-
-const bool &DbTableIndex::isAutoInc() const
-{
-    return m_AutoInc;
-}
-
-const bool &DbTableIndex::isUniq() const
-{
-    return m_Uniq;
-}
-
-const quint16 &DbTableIndex::field(const quint16 &id) const
-{
-    Q_ASSERT_X(id < m_Fld.size(), "DbTableIndex::field", "invalid field index");
-    return m_Fld[id];
-}
-
-quint16 DbTableIndex::count() const
-{
-    return m_Fld.size();
-}
-
 // -------------------------------------------------------------------------
 
 DbTable::DbTable(const QString &name, QSqlDatabase _db) :
@@ -149,6 +112,20 @@ DbTable::DbTable(const QString &name, QSqlDatabase _db) :
     m_SkipModelProxy(false)
 {
     m_pQuery.reset(new QSqlQuery(m_Db));
+
+    QSharedPointer<DbTableFormat> pPtr = Globals::inst()->tableFormat(name);
+
+    if (!pPtr)
+        throw ExceptionBase(tr("Не найдено описание структуры для таблицы [%1]").arg(name));
+
+    const QVector<DbFieldBase> &fields = pPtr->fields();
+    const QHash<QString,quint16> &fieldsNameIds = pPtr->fieldsNameIds();
+    const QVector<DbTableIndex> &indeces = pPtr->indeces();
+
+    m_PrimaryIndex = pPtr->primaryIndex();
+    std::copy(fields.begin(), fields.end(), std::back_inserter(m_Fields));
+    m_FieldsNameIds = fieldsNameIds;
+    std::copy(indeces.begin(), indeces.end(), std::back_inserter(m_Indeces));
 }
 
 DbTable::~DbTable()
@@ -162,7 +139,7 @@ void DbTable::fillFieldsNameIds()
         m_FieldsNameIds[m_Fields[i].name()] = i;
 }
 
-const QString &DbTable::name() const
+QString DbTable::name() const
 {
     return m_Name;
 }
@@ -192,12 +169,12 @@ std::optional<DbTableIndex> DbTable::aincIndex() const
     for (const DbTableIndex &idx : m_Indeces)
     {
         if (idx.isAutoInc())
-            return idx;
+            return std::optional<DbTableIndex>(DbTableIndex(idx));
     }
     return {};
 }
 
-const qint16 &DbTable::primaryIndex() const
+qint16 DbTable::primaryIndex() const
 {
     return m_PrimaryIndex;
 }
@@ -648,7 +625,7 @@ bool DbTable::newRecPrivate()
         const DbFieldBase &fld = m_Fields[i];
         switch(fld.type())
         {
-        case DbFieldBase::Int:
+        case DbFieldBase::Integer:
             m_Cache[m_recPos]->setValue(i, 0);
             break;
         case DbFieldBase::Date:

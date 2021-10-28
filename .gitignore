@@ -54,3 +54,7 @@ compile_commands.json
 rdb.sqlite3
 
 debug/
+
+bin — копия/
+
+bin/bin.zip

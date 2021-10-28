@@ -139,6 +139,7 @@ void ViewPartyWindow::showEvent(QShowEvent *event)
         m_ClientsList->setItemDelegateForColumn(ClientsViewModel::FldSex, m_GenderDelegate.data());
 
         m_ClientsList->horizontalHeader()->setSectionResizeMode(ClientsViewModel::FldSex, QHeaderView::Fixed);
+        m_ClientsList->horizontalHeader()->setSectionResizeMode(ClientsViewModel::FldNote, QHeaderView::Stretch);
 
         connect(m_ClientsList->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ViewPartyWindow::partySelectionChanged);
     }
@@ -219,6 +220,8 @@ void ViewPartyWindow::updateActionsEnable(const bool &val)
 
 void ViewPartyWindow::partySelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
+    Q_UNUSED(deselected);
+
     bool enable = false;
     if (selected.count() && selected.indexes().at(0).isValid())
     {
@@ -249,12 +252,12 @@ void ViewPartyWindow::partyContextMenuRequested(const QPoint &pos)
     actions.append(m_PartyActions[PA_Create]);
 
     QString name;
-    quint16 id = 0;
+    //quint16 id = 0;
 
     if (index.isValid())
     {
         name = m_ClientsModel->data(m_ClientsModel->index(index.row(), ClientsViewModel::FldFullName)).toString();
-        id = m_ClientsModel->data(m_ClientsModel->index(index.row(), ClientsViewModel::FldID)).value<quint16>();
+        //id = m_ClientsModel->data(m_ClientsModel->index(index.row(), ClientsViewModel::FldID)).value<quint16>();
         actions.append(m_PartyActions[PA_ViewInTab]);
 
         QAction *sep1 = nullptr;
@@ -271,6 +274,7 @@ void ViewPartyWindow::partyContextMenuRequested(const QPoint &pos)
 
     QAction *action = QMenu::exec(actions, mapped);
 
+    Q_UNUSED(action);
     /*if (action == m_pAddParty)
         m_pAddParty->trigger();*/
 }

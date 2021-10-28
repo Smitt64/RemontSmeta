@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "person/personpanel.h"
+#include "renovationpanel.h"
 #include "models/subwindowsmodel.h"
 #include "navigationdockwidget.h"
 #include "globals.h"
@@ -17,8 +18,8 @@
 class SubWindowsMenu : public QWidgetAction
 {
 public:
-    SubWindowsMenu(SubWindowsModel *model) :
-        QWidgetAction (model),
+    SubWindowsMenu(SubWindowsModel *model, QWidget *parent) :
+        QWidgetAction (parent),
         m_pModel(model)
     {
 
@@ -31,6 +32,9 @@ public:
 
         combo->setFixedWidth(200);
         combo->setModel(m_pModel);
+
+        MainWindow *mainwindow = qobject_cast<MainWindow*>(this->parent());
+        QObject::connect(combo, &QComboBox::currentIndexChanged, mainwindow, &MainWindow::currentWindowSelected);
         return combo;
     }
 
@@ -79,7 +83,7 @@ void MainWindow::setupDocks()
     m_ViewMenu->addAction(m_pClientsDock->toggleViewAction());
 
     //connect(m_pClientsDock, &NavigationDockWidget::itemClicked, this, &MainWindow::navigationClicked);
-    connect(m_pClientsDock, SIGNAL(itemClicked(QString)), this, SLOT(navigationClicked(QString)));
+    connect(m_pClientsDock, SIGNAL(itemClicked(QString,QString,QIcon)), this, SLOT(navigationClicked(QString,QString,QIcon)));
 }
 
 void MainWindow::setupMenus()
@@ -105,7 +109,7 @@ void MainWindow::setupWindowsList()
 {
     m_WindowsModel.reset(new SubWindowsModel());
     m_WindowsMenu.reset(new QMenu());
-    m_WindowsMenu->addAction(new SubWindowsMenu(m_WindowsModel.data()));
+    m_WindowsMenu->addAction(new SubWindowsMenu(m_WindowsModel.data(), this));
     menuBar()->setCornerWidget(m_WindowsMenu.data());
 
     menuBar()->setNativeMenuBar(false);
@@ -116,7 +120,7 @@ void MainWindow::setupWindowsList()
 
 void MainWindow::addClientAction()
 {
-    QScopedPointer<PersonPanel> panel(new PersonPanel(5, this));
+    QScopedPointer<RenovationPanel> panel(new RenovationPanel(this));
     panel->exec();
 }
 
@@ -130,10 +134,16 @@ void MainWindow::addWindowPrivate(SubWindowBase *wnd)
     }
 }
 
-void MainWindow::navigationClicked(const QString &mime)
+void MainWindow::navigationClicked(const QString &mime, const QString &param, const QIcon &icon)
 {
     SubWindowBase *wnd = Globals::inst()->create(mime, m_pMdiArea);
-    addWindowPrivate(wnd);
+
+    if (wnd)
+    {
+        wnd->setWindowIcon(icon);
+        wnd->setParam(param);
+        addWindowPrivate(wnd);
+    }
 }
 
 void MainWindow::subWindowRequestNewWindow(QWidget *widget)
@@ -141,4 +151,13 @@ void MainWindow::subWindowRequestNewWindow(QWidget *widget)
     SubWindowBase *wnd = new SubWindowBase(m_pMdiArea);
     wnd->setContentWidget(widget);
     addWindowPrivate(wnd);
+}
+
+void MainWindow::currentWindowSelected(const int &index)
+{
+    QMdiSubWindow *current = m_pMdiArea->currentSubWindow();
+    QMdiSubWindow *wnd = m_WindowsModel->window(index);
+
+    if (wnd && current && current != wnd)
+        m_pMdiArea->setActiveSubWindow(wnd);
 }

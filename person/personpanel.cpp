@@ -3,6 +3,7 @@
 #include "editcontactdlg.h"
 #include "dbtablebaseproxymodel.h"
 #include "globals.h"
+#include "jsclasses/jsclassexecuter.h"
 #include <QDataWidgetMapper>
 #include <QListWidgetItem>
 #include <QDebug>
@@ -168,6 +169,7 @@ PersonPanel::PersonPanel(const quint16 &person, QWidget *parent) :
 
     setupMapping();
     setupShortcuts();
+    setupJsEnbgine();
     pumpOwns();
 
     connect(this, &QDialog::accepted, this, &PersonPanel::onSave);
@@ -602,4 +604,17 @@ void PersonPanel::setViewMode()
 
     setWindowIcon(QIcon::fromTheme("Team"));
     setWindowTitle(tr("Просмотр субъекта: %1").arg(ui->fullnameEdit->text()));
+}
+
+void PersonPanel::setupJsEnbgine()
+{
+    JsClassExecuter executer;
+    if (executer.open("scripts/personpanel.js"))
+    {
+        JsClassExecuter::setObjectOwner(m_Table.data());
+
+        JsClassPtr obj = executer.createClass("PersonPanel", m_Table.data());
+        std::optional<bool> ret = obj->call<bool>("checkSave");
+        qDebug() << ret.value();
+    }
 }

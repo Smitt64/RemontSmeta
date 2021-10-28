@@ -1,0 +1,148 @@
+{
+    "tables" : [
+        {
+            "name": "dperson_dbt",
+            "primaryindex": 0,
+
+            "fields": [
+                {
+                    "name": "t_id",
+                    "type": "autoinc"
+                },
+                {
+                    "name": "t_family",
+                    "type": "string",
+                    "size": 155
+                },
+                {
+                    "name": "t_name",
+                    "type": "string",
+                    "size": 155
+                },
+                {
+                    "name": "t_patronymic",
+                    "type": "string",
+                    "size": 155
+                },
+                {
+                    "name": "t_fullname",
+                    "type": "string",
+                    "size": 465
+                },
+                {
+                    "name": "t_sex",
+                    "type": "integer"
+                },
+                {
+                    "name": "t_note",
+                    "type": "string",
+                    "size": 1000
+                }
+            ],
+
+            "indices": [
+                {
+                    "uniq" : true,
+                    "fields": ["t_id"]
+                }
+            ]
+        },
+        {
+            "name": "dcontact_dbt",
+            "primaryindex": 0,
+
+            "fields": [
+                {
+                    "name": "t_id",
+                    "type": "autoinc"
+                },
+                {
+                    "name": "t_personid",
+                    "type": "integer"
+                },
+                {
+                    "name": "t_type",
+                    "type": "integer"
+                },
+                {
+                    "name": "t_value",
+                    "type": "string",
+                    "size": 255
+                }
+            ],
+            
+            "indices": [
+                {
+                    "uniq" : true,
+                    "fields": ["t_id"]
+                },
+                {
+                    "fields": ["t_personid"]
+                }
+            ]
+        },
+        {
+            "name": "daddress_dbt",
+            "primaryindex": 0,
+
+            "fields": [
+                {
+                    "name": "t_id",
+                    "type": "autoinc"
+                },
+                {
+                    "name": "t_personid",
+                    "type": "integer"
+                },
+                {
+                    "name": "t_address",
+                    "type": "string",
+                    "size": 512
+                }
+            ],
+            
+            "indices": [
+                {
+                    "uniq" : true,
+                    "fields": ["t_id"]
+                },
+                {
+                    "fields": ["t_personid"]
+                }
+            ]
+        },
+        {
+            "name": "dpersonown_dbt",
+            "primaryindex": 0,
+
+            "fields": [
+                {
+                    "name": "t_id",
+                    "type": "autoinc"
+                },
+                {
+                    "name": "t_personid",
+                    "type": "integer"
+                },
+                {
+                    "name": "t_kind",
+                    "type": "integer"
+                }
+            ],
+            
+            "indices": [
+                {
+                    "uniq" : true,
+                    "fields": ["t_id"]
+                },
+                {
+                    "fields": ["t_personid"]
+                },
+                {
+                    "uniq": true,
+                    "fields": ["t_personid", "t_kind"]
+                }
+            ]
+        }
+    ]
+}

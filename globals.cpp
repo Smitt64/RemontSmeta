@@ -2,7 +2,10 @@
 #include "db/dbexception.h"
 #include "loggingcategories.h"
 #include "clientswindow/viewpartywindow.h"
-#include "reference/renovationtypeeditor.h"
+#include "reference/jsonmodeleditor.h"
+#include "tables/tclient.h"
+#include "models/jsontablemodel.h"
+#include "jsclasses/jsconsole.h"
 #include <QSplashScreen>
 #include <QApplication>
 #include <QJsonDocument>
@@ -13,14 +16,13 @@
 #include <QStyleFactory>
 #include <QIcon>
 
-#include "tables/tclient.h"
+// -qmljsdebugger=port:3768,services:DebugMessages,QmlDebugger,V8Debugger,QmlInspector,DebugTranslation
 
 Globals *Globals::m_pThis = nullptr;
 
 Globals::Globals(QObject *parent) :
     QObject(parent)
 {
-
 }
 
 Globals *Globals::inst()
@@ -40,6 +42,9 @@ Globals *Globals::inst()
 void Globals::init(QSplashScreen *screen)
 {
     qCInfo(logCore()) << "Init";
+    m_AppDir = qApp->applicationDirPath();
+    qCInfo(logCore()) <<  "Application dir:" << m_AppDir.path();
+
     QStyle *style = QStyleFactory::create("fusion");
     qApp->setStyle(style);
 
@@ -47,10 +52,28 @@ void Globals::init(QSplashScreen *screen)
     QIcon::setThemeName("dark-icons");
     qDebug() << QIcon::themeSearchPaths() << QIcon::themeName();
 
-    CALL_INIT_FUNCTIONS(loadStreets, tr("Загрузка справочника улиц..."));
-    CALL_INIT_FUNCTIONS(loadNames, tr("Загрузка справочника имен..."));
+    /*CALL_INIT_FUNCTIONS(loadStreets, tr("Загрузка справочника улиц..."));
+    CALL_INIT_FUNCTIONS(loadNames, tr("Загрузка справочника имен..."));*/
     CALL_INIT_FUNCTIONS(openDataBase, tr("Открытие базы данных..."));
+    CALL_INIT_FUNCTIONS(loadModels, tr("Загрузка справочников..."));
+    CALL_INIT_FUNCTIONS(loadTables, tr("Загрузка описаний таблиц..."));
     CALL_INIT_FUNCTIONS(registerInterfaces, tr("Регистрация интерфейсов..."));
+
+    initJsDebugging();
+}
+
+void Globals::initJsDebugging()
+{
+    m_JsConsole.reset(new JsConsole());
+#if defined(QT_QML_DEBUG)
+    qCInfo(logCore()) << "Init java script debugging";
+    //m_JsDebugger = qQmlEnableDebuggingHelper();
+    /*m_JsDebugger = qQmlEnableDebuggingHelper;
+    qDebug() << QQmlDebuggingEnabler::debuggerServices();
+    qDebug() << QQmlDebuggingEnabler::startTcpDebugServer(1111);*/
+#else
+    qCInfo(logCore()) << "Init java script debugging not supported";
+#endif
 }
 
 bool Globals::loadStringListModelJson(const QString &fname, const QString &element, QStringListModel *model)
@@ -77,55 +100,95 @@ bool Globals::loadStringListModelJson(const QString &fname, const QString &eleme
 
 void Globals::loadStreets()
 {
-    //QFile f("msc_streets.json");
+    /*qCInfo(logCore()) << "Loading street list";
+    m_JsonModels[JSON_MSC_STREETS] = new JsonTableModel();
 
-    qCInfo(logCore()) << "Loading street list";
-    m_pStreetsModel.reset(new QStringListModel());
-
-    bool result = loadStringListModelJson("msc_streets.json", "streets", m_pStreetsModel.data());
+    bool result = m_JsonModels[JSON_MSC_STREETS]->open("json/msc_streets.json");
     if (!result)
-        throw ExceptionBase(tr("Не удалось загрузить список улиц"));
-    /*if (f.open(QIODevice::ReadOnly))
-    {
-        m_pStreetsModel.reset(new QStringListModel());
-        QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
-        QJsonArray streets = doc["streets"].toArray();
+        throw ExceptionBase(tr("Не удалось загрузить список улиц"));*/
 
-        QStringList lst;
-        for (const QJsonValue &value : qAsConst(streets))
-            lst.append(value.toString());
+    /*m_pStreetsModel.reset(new QStringListModel());
 
-        m_pStreetsModel->setStringList(lst);
-    }
-    else
+    bool result = loadStringListModelJson("json/msc_streets.json", "streets", m_pStreetsModel.data());
+    if (!result)
         throw ExceptionBase(tr("Не удалось загрузить список улиц"));*/
 }
 
 void Globals::loadNames()
 {
-    qCInfo(logCore()) << "Loading street list";
-    m_pNamesModel.reset(new QStringListModel());
+    /*qCInfo(logCore()) << "Loading street list";
+    m_JsonModels[JSON_NAMES] = new JsonTableModel();
+
+    bool result = m_JsonModels[JSON_NAMES]->open("json/names.json");
+    if (!result)
+        throw ExceptionBase(tr("Не удалось загрузить список имен"));*/
+
+    /*m_pNamesModel.reset(new QStringListModel());
 
     bool result = loadStringListModelJson(":/tools/json/names.json", "names", m_pNamesModel.data());
     if (!result)
-        throw ExceptionBase(tr("Не удалось загрузить список имен"));
-    /*QFile f(":/tools/json/names.json");
+        throw ExceptionBase(tr("Не удалось загрузить список имен"));*/
+}
 
-    qCInfo(logCore()) << "Loading names list";
-    if (f.open(QIODevice::ReadOnly))
+void Globals::loadModels()
+{
+    QDir models_dir = m_AppDir;
+
+    if (!models_dir.cd("json"))
     {
-        m_pNamesModel.reset(new QStringListModel());
-        QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
-        QJsonArray streets = doc["names"].toArray();
-
-        QStringList lst;
-        for (const QJsonValue &value : qAsConst(streets))
-            lst.append(value.toString());
-
-        m_pNamesModel->setStringList(lst);
+        qCritical(logCore()) << "Settings directory [json] not found";
+        throw ExceptionBase(tr("Не найден каталог с настройками"));
     }
     else
-        throw ExceptionBase(tr("Не удалось загрузить список имен"));*/
+    {
+        if (!models_dir.cd("models"))
+        {
+            qCritical(logCore()) << "Models directory not found";
+            throw ExceptionBase(tr("Не найден каталог с моделями"));
+        }
+        else
+        {
+            QFileInfoList models = models_dir.entryInfoList({"*.json"}, QDir::Files);
+
+            for (const QFileInfo &model : models)
+            {
+                JsonTableModel *tablemodel = new JsonTableModel();
+                bool hr = tablemodel->open(model.absoluteFilePath(), false);
+                qCInfo(logCore()) << QString("Model [%1]:").arg(model.baseName()) << hr;
+
+                if (hr)
+                    m_JsonModels[model.baseName()] = tablemodel;
+                else
+                    delete tablemodel;
+            }
+        }
+    }
+}
+
+void Globals::loadTables()
+{
+    QDir models_dir = m_AppDir;
+
+    if (!models_dir.cd("json"))
+    {
+        qCritical(logCore()) << "Settings directory [json] not found";
+        throw ExceptionBase(tr("Не найден каталог с настройками"));
+    }
+    else
+    {
+        if (!models_dir.cd("tables"))
+        {
+            qCritical(logCore()) << "Tables directory not found";
+            throw ExceptionBase(tr("Не найден каталог с таблицами"));
+        }
+        else
+        {
+            QFileInfoList models = models_dir.entryInfoList({"*.json"}, QDir::Files);
+
+            for (const QFileInfo &model : models)
+                DbTableFormat::loadFromFile(model.absoluteFilePath(), m_TableFormats);
+        }
+    }
 }
 
 void Globals::openDataBase()
@@ -143,7 +206,7 @@ void Globals::registerInterfaces()
     qCInfo(logCore()) << "Register interfaces";
     m_WindowsFactory.add<ViewPartyWindow>("application/all-person");
     m_WindowsFactory.add<ViewClientsWindow>("application/clients");
-    m_WindowsFactory.add<RenovationTypeEditor>("application/renovationtype");
+    m_WindowsFactory.add<JsonTableModelEditor>("application/jsonmodel");
 }
 
 SubWindowBase *Globals::create(const QString &id, QWidget *widget) const
@@ -158,10 +221,38 @@ QSqlDatabase &Globals::db()
 
 QAbstractItemModel *Globals::streetsModel()
 {
-    return m_pStreetsModel.data();
+    return m_JsonModels[JSON_MSC_STREETS];
 }
 
 QAbstractItemModel *Globals::namesModel()
 {
-    return m_pNamesModel.data();
+    return m_JsonModels[JSON_NAMES];
+}
+
+bool Globals::hasJsonModel(const QString &name) const
+{
+    return m_JsonModels.contains(name);
+}
+
+JsonTableModel *Globals::model(const QString &name)
+{
+    return m_JsonModels[name];
+}
+
+const QDir &Globals::appdir() const
+{
+    return m_AppDir;
+}
+
+QObject *Globals::jsConsoleObj()
+{
+    return m_JsConsole.data();
+}
+
+QSharedPointer<DbTableFormat> Globals::tableFormat(const QString &name) const
+{
+    if (!m_TableFormats.contains(name))
+        return QSharedPointer<DbTableFormat>();
+
+    return m_TableFormats[name];
 }

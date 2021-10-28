@@ -27,10 +27,17 @@ QModelIndex SubWindowsModel::addWindow(QMdiSubWindow *wnd)
     return nindex;
 }
 
+QMdiSubWindow *SubWindowsModel::window(const int &index)
+{
+    if (index >= 0 && index < m_Windows.size())
+        return qobject_cast<QMdiSubWindow*>(m_Windows[index]);
+
+    return nullptr;
+}
+
 QMdiSubWindow *SubWindowsModel::window(const QModelIndex &index)
 {
-    Q_ASSERT_X(index.row() >= 0 && index.row() < m_Windows.size(), "SubWindowsModel::window", "invalid window");
-    return qobject_cast<QMdiSubWindow*>(m_Windows[index.row()]);
+    return window(index.row());
 }
 
 int SubWindowsModel::columnCount(const QModelIndex &parent) const
@@ -50,7 +57,8 @@ QVariant SubWindowsModel::data(const QModelIndex &index, int role) const
     if (index.row() < 0 || index.row() >= m_Windows.size())
         return QVariant();
 
-    if (role == Qt::DisplayRole)
+    static QList<Qt::ItemDataRole> roles{Qt::DisplayRole, Qt::StatusTipRole, Qt::ToolTipRole};
+    if (roles.contains(role))
         return m_Windows[index.row()]->windowTitle();
     else if (role == Qt::DecorationRole)
         return m_Windows[index.row()]->windowIcon();

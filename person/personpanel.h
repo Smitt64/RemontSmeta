@@ -16,6 +16,8 @@ class AdressProxy;
 class QShortcut;
 class QListWidgetItem;
 class QCompleter;
+class QQmlEngine;
+class QJSEngine;
 class PersonPanel : public QDialog
 {
     Q_OBJECT
@@ -43,6 +45,7 @@ private slots:
 private:
     void setupMapping();
     void setupShortcuts();
+    void setupJsEnbgine();
     void pumpOwns();
 
     QScopedPointer<QDataWidgetMapper> m_DataMapper;
@@ -55,6 +58,8 @@ private:
     QScopedPointer<QCompleter> m_NameCompleter;
 
     QScopedPointer<QShortcut> m_AddPhoneShortcut, m_AddEmailShortcut, m_AddAdressShortcut;
+
+    QScopedPointer<QJSEngine> m_JsEngine;
 
     //TestModel tmpmodel;
 };

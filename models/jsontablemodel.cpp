@@ -10,6 +10,10 @@
 #include <QSizeF>
 #include <QDebug>
 
+template<class T>
+struct is_integer_type : std::integral_constant<bool,
+        std::is_integral<T>::value> {};
+
 #define ERR_NO_TAG(name) QObject::tr("Не верное описание документа. Отсутствует элемент %1").arg(name)
 
 class JsonTableColumn
@@ -115,6 +119,30 @@ public:
         return hr;
     }
 
+    template<class T>
+    bool isSameType() const
+    {
+        bool result = false;
+
+        if constexpr (std::is_floating_point<T>::value)
+        {
+            if (_type == JsonTableModel::ColumnReal)
+                result = true;
+        }
+        else if constexpr (is_integer_type<T>::value)
+        {
+            if (_type == JsonTableModel::ColumnAutoInc || _type == JsonTableModel::ColumnInteger)
+                result = true;
+        }
+        else if constexpr (std::is_same<T, QString>::value)
+        {
+            if (_type == JsonTableModel::ColumnString)
+                result = true;
+        }
+
+        return result;
+    }
+
     QVariant valueFromJsonObject(const QJsonObject &obj) const
     {
         QVariant result;
@@ -206,7 +234,7 @@ class JsonTableModelData
     friend class JsonTableModel;
 public:
     typedef QMap<QString,QVariant> JsonDataListElement;
-    typedef QList<JsonDataListElement> JsonDataList;
+    typedef QVector<JsonDataListElement> JsonDataList;
     typedef QList<JsonDataList> JsonDataStorage;
 
     JsonTableModelData() :
@@ -221,6 +249,16 @@ public:
 
         m_isChanged = true;
         top().append(value);
+    }
+
+    void insert(int row)
+    {
+        if (!m_isChanged)
+            push();
+
+        JsonDataListElement value;
+        top().insert(row, value);
+        m_isChanged = true;
     }
 
     QVariant get(const quint32 &row, const QString &fld)
@@ -262,6 +300,41 @@ public:
         return top().size();
     }
 
+    void revert()
+    {
+        if (m_isChanged && !m_Data.isEmpty())
+        {
+            m_isChanged = false;
+            m_Data.takeLast();
+        }
+    }
+
+    void apply()
+    {
+        if (m_isChanged && !m_Data.isEmpty())
+        {
+            m_isChanged = false;
+            m_Data.takeFirst();
+        }
+    }
+
+    template<class T>
+    T maxValue(const JsonTableColumn &column)
+    {
+        if (!column.isSameType<T>())
+            return 0;
+
+        int sz = top().size();
+        T max = column.min();
+        for (int row = 0; row < sz; row++)
+        {
+            T curVal = get(row, column.name()).value<T>();
+            max = std::max(max, curVal);
+        }
+
+        return max;
+    }
+
 private:
     void resetChangedFlag()
     {
@@ -269,6 +342,11 @@ private:
     }
 
     JsonDataList &top()
+    {
+        return m_Data.last();
+    }
+
+    const JsonDataList &top() const
     {
         return m_Data.last();
     }
@@ -298,16 +376,20 @@ JsonTableModel::~JsonTableModel()
     qDeleteAll(m_Columns);
 }
 
-bool JsonTableModel::open(const QString &filename)
+bool JsonTableModel::open(const QString &filename, bool logopenmsg)
 {
     bool hr = true;
     QFile file(filename);
 
     if (!file.open(QIODevice::ReadOnly))
-        qInfo(logCore()) << QString("JsonTableModel::open(%1)").arg(filename) << (hr = false);
+    {
+        if (logopenmsg)
+            qInfo(logCore()) << QString("JsonTableModel::open(%1)").arg(filename) << (hr = false);
+    }
     else
     {
-        qInfo(logCore()) << QString("JsonTableModel::open(%1)").arg(filename) << true;
+        if (logopenmsg)
+            qInfo(logCore()) << QString("JsonTableModel::open(%1)").arg(filename) << true;
 
         QJsonParseError parseResult;
         QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseResult);
@@ -329,7 +411,8 @@ bool JsonTableModel::open(const QString &filename)
             else
             {
                 try {
-                    QJsonArray arr = root["columns"].toArray();
+                    m_JsonColumns.reset(new QJsonValue(root["columns"]));
+                    QJsonArray arr = m_JsonColumns->toArray();
 
                     for (auto column : arr)
                     {
@@ -351,9 +434,14 @@ bool JsonTableModel::open(const QString &filename)
                     readElements(arr);
                 }
 
+                if (root.contains("metadata"))
+                    readMetaData(root["metadata"].toObject());
+
                 m_Data->resetChangedFlag();
             }
         }
+
+        file.close();
     }
 
     return hr;
@@ -374,6 +462,19 @@ void JsonTableModel::readElements(const QJsonArray &arr)
 
         m_Data->append(element);
     }
+}
+
+void JsonTableModel::readMetaData(const QJsonValue &obj)
+{
+    m_MetaData.reset(new QJsonValue(obj));
+
+    QJsonObject _obj = m_MetaData->toObject();
+    m_Title = _obj.value("title").toString();
+}
+
+const QString &JsonTableModel::metaTitle() const
+{
+    return m_Title;
 }
 
 QVariant JsonTableModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -445,8 +546,20 @@ QVariant JsonTableModel::data(const QModelIndex &index, int role) const
 {
     const JsonTableColumn * const column = m_Columns[index.column()];
 
-    if (role == Qt::DisplayRole || role == Qt::EditRole)
+    if (role == Qt::EditRole)
+    {
         return m_Data->get(index.row(), column->name());
+    }
+    else if (role == Qt::DisplayRole || role == Qt::ToolTipRole || role == Qt::StatusTipRole)
+    {
+        QVariant dt = m_Data->get(index.row(), column->name());
+
+        if (column->type() == JsonTableModel::ColumnReal)
+            return QString::number(dt.toDouble(), 'f', 2);
+
+        return dt;
+
+    }
     else if (role == Qt::TextAlignmentRole)
     {
         if (column->isNumber())
@@ -467,9 +580,103 @@ bool JsonTableModel::setData(const QModelIndex &index, const QVariant &value, in
         if (oldValue != value)
         {
             m_Data->set(index.row(), column->name(), value);
-            return false;
+            emit editStateChanged();
+            return true;
         }
     }
 
     return false;
+}
+
+bool JsonTableModel::insertRows(int row, int count, const QModelIndex &parent)
+{
+    if (count < 1 || row < 0 || row > rowCount(parent))
+        return false;
+
+    qint16 fld = columnAutoinc();
+    beginInsertRows(QModelIndex(), row, row + count - 1);
+    for (int r = 0; r < count; ++r)
+    {
+        m_Data->insert(row);
+
+        if (fld != -1)
+        {
+            quint32 nextautoinc = nextAutoinc();
+            m_Data->set(row + r, m_Columns[fld]->name(), nextautoinc);
+        }
+    }
+    endInsertRows();
+    return true;
+}
+
+bool JsonTableModel::hasChanges() const
+{
+    return m_Data->isChanged();
+}
+
+void JsonTableModel::revertChanges()
+{
+    beginResetModel();
+    m_Data->revert();
+    endResetModel();
+    emit editStateChanged();
+}
+
+void JsonTableModel::applyChanges()
+{
+    beginResetModel();
+    m_Data->apply();
+    endResetModel();
+    emit editStateChanged();
+}
+
+qint16 JsonTableModel::columnAutoinc() const
+{
+    qint16 fld = -1;
+
+    for (const auto &item : m_Columns)
+    {
+        if (item->type() == JsonTableModel::ColumnAutoInc)
+        {
+            fld = m_Columns.indexOf(item);
+            break;
+        }
+    }
+
+    return fld;
+}
+
+quint32 JsonTableModel::nextAutoinc() const
+{
+    qint16 fld = columnAutoinc();
+
+    if (fld == -1)
+        return 0;
+
+    quint32 maxvalue = m_Data->maxValue<quint32>(*m_Columns[fld]);
+
+    return maxvalue + 1;
+}
+
+bool JsonTableModel::save()
+{
+    bool hr = false;
+
+    QJsonDocument doc;
+    QJsonObject object;
+
+    if (m_MetaData)
+        object.insert("metadata", *m_MetaData);
+
+    if (m_JsonColumns)
+        object.insert("columns", *m_JsonColumns);
+
+    doc.setObject(object);
+
+    //qDebug() << doc.toJson();
+    QFile f("111.json");
+    f.open(QIODevice::WriteOnly);
+    f.write(doc.toJson());
+
+    return hr;
 }
