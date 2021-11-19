@@ -2,10 +2,13 @@
 #define SELECTPARTYDLG_H
 
 #include <QDialog>
+#include <QHash>
 
 namespace Ui {
 class SelectPartyDlg;
 }
+
+typedef QHash<QString,QVariant> SelectPartyResult;
 
 class QMainWindow;
 class QListView;
@@ -21,6 +24,8 @@ public:
     explicit SelectPartyDlg(QWidget *parent = nullptr);
     ~SelectPartyDlg();
 
+    const SelectPartyResult &result() const;
+
 private:
     Ui::SelectPartyDlg *ui;
 
@@ -31,6 +36,8 @@ private:
 
     QScopedPointer<QSortFilterProxyModel> m_FilterModel;
     QScopedPointer<ClientsViewModel> m_ClientsModel;
+
+    SelectPartyResult m_Result;
 
     QAction *m_pNewParty, *m_pViewParty;
 };

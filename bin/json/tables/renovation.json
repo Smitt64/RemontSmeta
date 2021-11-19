@@ -123,27 +123,27 @@
                 {
                     "name": "t_floor_area",
                     "type": "real",
-                    "comment": "Площад пола"
+                    "comment": "Площадь пола"
                 },
                 {
                     "name": "t_celing_area",
                     "type": "real",
-                    "comment": "Площад потолка"
+                    "comment": "Площадь потолка"
+                },
+                {
+                    "name": "t_wall_area_bopens",
+                    "type": "real",
+                    "comment": "Площадь стен до вычета проемов"
                 },
                 {
                     "name": "t_wall_area_aopens",
                     "type": "real",
-                    "comment": "Площад стен после вычета проемов"
+                    "comment": "Площадь стен после вычета проемов"
                 },
                 {
                     "name": "t_door_area",
                     "type": "real",
                     "comment": "Площадь дверного проема"
-                },
-                {
-                    "name": "t_window_area",
-                    "type": "real",
-                    "comment": "Площадь оконного проема"
                 },
                 {
                     "name": "t_window_area",
@@ -159,6 +159,91 @@
                     "name": "t_window_slopes",
                     "type": "real",
                     "comment": "Оконные откосы"
+                },
+                {
+                    "name": "t_rough_ceiling",
+                    "type": "integer",
+                    "comment": "Черновые работы (Потолок)"
+                },
+                {
+                    "name": "t_rough_wall",
+                    "type": "integer",
+                    "comment": "Черновые работы (Стены)"
+                },
+                {
+                    "name": "t_rough_floor",
+                    "type": "integer",
+                    "comment": "Черновые работы (Пол)"
+                },
+                {
+                    "name": "t_rough_partition",
+                    "type": "integer",
+                    "comment": "Черновые работы (Перегородки)"
+                },
+                {
+                    "name": "t_finishing_ceiling",
+                    "type": "integer",
+                    "comment": "Чистовые работы (Потолок)"
+                },
+                {
+                    "name": "t_finishing_cornice",
+                    "type": "integer",
+                    "comment": "Чистовые работы (Карниз)"
+                },
+                {
+                    "name": "t_finishing_galteli",
+                    "type": "boolean",
+                    "comment": "Чистовые работы (Галтели)"
+                },
+                {
+                    "name": "t_finishing_wall",
+                    "type": "integer",
+                    "comment": "Чистовые работы (Стены)"
+                },
+                {
+                    "name": "t_finishing_slopes",
+                    "type": "integer",
+                    "comment": "Чистовые работы (Откосы)"
+                },
+                {
+                    "name": "t_finishing_windowsill",
+                    "type": "integer",
+                    "comment": "Чистовые работы (Подоконник)"
+                },
+                {
+                    "name": "t_finishing_floor",
+                    "type": "integer",
+                    "comment": "Чистовые работы (Пол)"
+                },
+                {
+                    "name": "t_finishing_plinth",
+                    "type": "integer",
+                    "comment": "Чистовые работы (Плинтус)"
+                },
+                {
+                    "name": "t_finishing_threshold",
+                    "type": "integer",
+                    "comment": "Чистовые работы (Порог)"
+                },
+                {
+                    "name": "t_warm_floor",
+                    "type": "real",
+                    "comment": "Теплый пол"
+                },
+                {
+                    "name": "t_finishing_radiator",
+                    "type": "integer",
+                    "comment": "Чистовые работы (Радиатор)"
+                },
+                {
+                    "name": "t_finishing_door",
+                    "type": "integer",
+                    "comment": "Чистовые работы (Двери)"
+                },
+                {
+                    "name": "t_finishing_door_fur",
+                    "type": "integer",
+                    "comment": "Чистовые работы (Дверная фурнитура)"
                 }
             ],
 

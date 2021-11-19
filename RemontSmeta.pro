@@ -17,6 +17,11 @@ SOURCES += \
     db/dbtableformat.cpp \
     jsclasses/jsclassexecuter.cpp \
     jsclasses/jsconsole.cpp \
+    renovation/questionstreeview.cpp \
+    renovation/renovationcontentwidget.cpp \
+    renovation/renovationquestitemdelegate.cpp \
+    renovation/renovationquesttionmodel.cpp \
+    renovation/trenovationservice.cpp \
     widgets/columnalignedlayout.cpp \
     db/dbexception.cpp \
     db/dbtable.cpp \
@@ -37,7 +42,7 @@ SOURCES += \
     person/tpersonservice.cpp \
     person/personpanel.cpp \
     reference/jsonmodeleditor.cpp \
-    renovationpanel.cpp \
+    renovation/renovationpanel.cpp \
     subwindowbase.cpp \
     tables/renovation.cpp \
     tables/tclient.cpp \
@@ -51,6 +56,11 @@ HEADERS += \
     db/dbtableformat.hpp \
     jsclasses/jsclassexecuter.h \
     jsclasses/jsconsole.h \
+    renovation/questionstreeview.h \
+    renovation/renovationcontentwidget.h \
+    renovation/renovationquestitemdelegate.h \
+    renovation/renovationquesttionmodel.h \
+    renovation/trenovationservice.h \
     widgets/columnalignedlayout.h \
     db/DbField.hpp \
     db/dbexception.h \
@@ -72,7 +82,7 @@ HEADERS += \
     person/tpersonservice.h \
     person/personpanel.h \
     reference/jsonmodeleditor.h \
-    renovationpanel.h \
+    renovation/renovationpanel.h \
     subwindowbase.h \
     tables/renovation.h \
     tables/tclient.h \
@@ -83,7 +93,8 @@ HEADERS += \
 FORMS += \
     editstringdialog.ui \
     person/personpanel.ui \
-    renovationpanel.ui \
+    renovation/renovationcontentwidget.ui \
+    renovation/renovationpanel.ui \
     widgets/selectpartydlg.ui
 
 # Default rules for deployment.

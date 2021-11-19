@@ -1,0 +1,247 @@
+{
+    "elements": [
+        {
+            "titles": ["Замеры"],
+            "group": true
+        },
+        {
+            "titles": ["Название помещения"],
+            "column": "t_name"
+        },
+        {
+            "titles": ["Форма помещения"],
+            "column": "t_shape",
+            "items": [
+                { "id": 0, "name": "Прямоугольная" },
+                { "id": 1, "name": "Более 4 углов" }
+            ]
+        },
+        {
+            "titles": ["Длина помещения, м", "Площадь пола, м²"],
+            "column": "t_length"
+        },
+        {
+            "titles": ["Ширина помещения, м", "Площадь стен до вычета проемов, м²"],
+            "column": "t_width"
+        },
+        {
+            "titles": ["Высота до потолка, м", "Перемиметр пола, м"],
+            "column": "t_height"
+        },
+        {
+            "titles": ["Ширина дверного проема, м"],
+            "column": "t_door_width"
+        },
+        {
+            "titles": ["Высота дверного проема, м"],
+            "column": "t_door_height"
+        },
+        {
+            "titles": ["Глубина дверного проема, м"],
+            "column": "t_door_depth"
+        },
+        {
+            "titles": ["Ширина окон блока, м"],
+            "column": "t_window_width"
+        },
+        {
+            "titles": ["Высота окон блока, м"],
+            "column": "t_window_height"
+        },
+        {
+            "titles": ["Глубина окон блока, м"],
+            "column": "t_window_depth"
+        },
+        {
+            "titles": ["Площадь пола, м²"],
+            "column": "t_floor_area",
+            "editable": false
+        },
+        {
+            "titles": ["Площадь потолка, м²"],
+            "column": "t_celing_area",
+            "editable": false
+        },
+        {
+            "titles": ["Площадь стен до вычета проемов, м²"],
+            "column": "t_wall_area_bopens",
+            "editable": false
+        },
+        {
+            "titles": ["Площадь стен после вычета проемов, м²"],
+            "column": "t_wall_area_aopens",
+            "editable": false
+        },
+        {
+            "titles": ["Площадь дверного проема, м²"],
+            "column": "t_door_area",
+            "editable": false
+        },
+        {
+            "titles": ["Площадь оконного проема, м²"],
+            "column": "t_window_area",
+            "editable": false
+        },
+        {
+            "titles": ["Периметр пола, м"],
+            "column": "t_floor_perimeter",
+            "editable": false
+        },
+        {
+            "titles": ["Оконные откосы, м"],
+            "column": "t_window_slopes",
+            "editable": false
+        },
+        {
+            "titles": ["Черновые работы"],
+            "group": true
+        },
+        {
+            "titles": ["Потолок"],
+            "column": "t_rough_ceiling",
+            "jsonmodel": {
+                "name": "rough_ceiling",
+                "display": "name",
+                "key": "id"
+            }
+        },
+        {
+            "titles": ["Стены"],
+            "column": "t_rough_wall",
+            "jsonmodel": {
+                "name": "rough_wall",
+                "display": "name",
+                "key": "id"
+            }
+        },
+        {
+            "titles": ["Пол"],
+            "column": "t_rough_floor",
+            "jsonmodel": {
+                "name": "rough_floor",
+                "display": "name",
+                "key": "id"
+            }
+        },
+        {
+            "titles": ["Перегородки"],
+            "column": "t_rough_partition",
+            "jsonmodel": {
+                "name": "rough_partition",
+                "display": "name",
+                "key": "id"
+            }
+        },
+        {
+            "titles": ["Финишыне работы"],
+            "group": true
+        },
+        {
+            "titles": ["Потолок"],
+            "column": "t_finishing_ceiling",
+            "jsonmodel": {
+                "name": "finishing_ceiling",
+                "display": "name",
+                "key": "id"
+            }
+        },
+        {
+            "titles": ["Карниз"],
+            "column": "t_finishing_cornice",
+            "jsonmodel": {
+                "name": "finishing_cornice",
+                "display": "name",
+                "key": "id"
+            }
+        },
+        {
+            "titles": ["Галтели"],
+            "column": "t_finishing_galteli"
+        },
+        {
+            "titles": ["Стены"],
+            "column": "t_finishing_wall",
+            "jsonmodel": {
+                "name": "finishing_wall",
+                "display": "name",
+                "key": "id"
+            }
+        },
+        {
+            "titles": ["Оконные откосы"],
+            "column": "t_finishing_slopes",
+            "jsonmodel": {
+                "name": "finishing_slopes",
+                "display": "name",
+                "key": "id"
+            }
+        },
+        {
+            "titles": ["Подоконник"],
+            "column": "t_finishing_windowsill",
+            "jsonmodel": {
+                "name": "finishing_windowsill",
+                "display": "name",
+                "key": "id"
+            }
+        },
+        {
+            "titles": ["Пол"],
+            "column": "t_finishing_floor",
+            "jsonmodel": {
+                "name": "finishing_floor",
+                "display": "name",
+                "key": "id"
+            }
+        },
+        {
+            "titles": ["Плинтус"],
+            "column": "t_finishing_plinth",
+            "jsonmodel": {
+                "name": "finishing_plinth",
+                "display": "name",
+                "key": "id"
+            }
+        },
+        {
+            "titles": ["Пороги"],
+            "column": "t_finishing_threshold",
+            "jsonmodel": {
+                "name": "finishing_threshold",
+                "display": "name",
+                "key": "id"
+            }
+        },
+        {
+            "titles": ["Теплый пол, м²"],
+            "column": "t_warm_floor"
+        },
+        {
+            "titles": ["Радиаторы"],
+            "column": "t_finishing_radiator",
+            "jsonmodel": {
+                "name": "finishing_radiator",
+                "display": "name",
+                "key": "id"
+            }
+        },
+        {
+            "titles": ["Дверной проем"],
+            "column": "t_finishing_door",
+            "jsonmodel": {
+                "name": "finishing_door",
+                "display": "name",
+                "key": "id"
+            }
+        },
+        {
+            "titles": ["Дверная фурнитура"],
+            "column": "t_finishing_door_fur",
+            "jsonmodel": {
+                "name": "finishing_door_fur",
+                "display": "name",
+                "key": "id"
+            }
+        }
+    ]
+}

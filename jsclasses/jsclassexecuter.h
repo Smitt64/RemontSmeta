@@ -8,13 +8,10 @@
 #define OWNER_PROPERTY "Owner"
 
 template<class T>
-void addParam(T element, QQmlEngine *JsEngine, QJSValueList &params)
+void addParam(T &element, QQmlEngine *JsEngine, QJSValueList &params)
 {
-    qDebug() << typeid(T).name();
-
     if constexpr (std::is_convertible<T, QObject*>::value)
     {
-        qDebug() << typeid(T).name();
         QJSValue value = JsEngine->newQObject(element);
         QVariant ownerProperty = element->property(OWNER_PROPERTY);
 
@@ -23,7 +20,14 @@ void addParam(T element, QQmlEngine *JsEngine, QJSValueList &params)
 
         params.append(value);
     }
+    else //*if constexpr (std::is_same<T,QVariant>::value)*/
+    {
+        QJSValue value = JsEngine->toScriptValue<T>(element);
+        params.append(value);
+    }
 }
+
+bool isErrorJsValue(const QJSValue &value, QStringList exceptionStackTrace = QStringList());
 
 // -------------------------------------------------------------------------
 
@@ -71,10 +75,20 @@ private:
         }, tuple);
 
         QJSValue ret = function.callWithInstance(*m_Obj.data(), params);
+        if (!isErrorJsValue(ret))
+        {
+            if (m_pJsEngine->hasError())
+            {
+                QJSValue error = m_pJsEngine->catchError();
+
+                if (isErrorJsValue(error))
+                    return error;
+            }
+        }
         return ret;
     }
 
-    QQmlEngine m_pJsEngine;
+    QQmlEngine *m_pJsEngine;
     QScopedPointer<QJSValue> m_Obj;
 };
 
@@ -84,6 +98,7 @@ typedef QSharedPointer<JsClassWrapper> JsClassPtr;
 class JsClassExecuter : public QObject
 {
     Q_OBJECT
+    friend class JsClassWrapper;
 public:
     enum Ownership
     {
@@ -104,7 +119,7 @@ public:
     {
         QJSValue prototype = m_JsEngine->globalObject().property(name);
 
-        if (isErrorValue(prototype))
+        if (isErrorJsValue(prototype))
             return nullptr;
 
         QJSValueList params;
@@ -115,8 +130,18 @@ public:
         }, tuple);
 
         QJSValue obj = prototype.callAsConstructor(params);
-        if (isErrorValue(prototype))
+        if (isErrorJsValue(prototype))
             return nullptr;
+        else
+        {
+            if (m_JsEngine->hasError())
+            {
+                QJSValue error = m_JsEngine->catchError();
+
+                if (isErrorJsValue(error))
+                    return nullptr;
+            }
+        }
 
         if (!isObject(obj, name, "CreateClass"))
             return nullptr;

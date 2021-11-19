@@ -100,13 +100,18 @@ SelectPartyDlg::SelectPartyDlg(QWidget *parent) :
 
         if (current.isValid())
         {
+            const QAbstractItemModel * const model = current.model();
             m_pViewParty->setEnabled(true);
             ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+
+            m_Result["id"] = model->data(model->index(current.row(), ClientsViewModel::FldID)).toInt();
+            m_Result["name"] = model->data(model->index(current.row(), ClientsViewModel::FldFullName));
         }
         else
         {
             m_pViewParty->setEnabled(false);
             ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+            m_Result.clear();
         }
     });
 
@@ -115,9 +120,20 @@ SelectPartyDlg::SelectPartyDlg(QWidget *parent) :
         QPoint pos = m_ClientsView->mapToGlobal(pt);
         QMenu::exec({m_pNewParty, m_pViewParty}, pos);
     });
+
+    connect(m_ClientsView.data(), &QListView::doubleClicked, [=](const QModelIndex &index)
+    {
+        if (index.isValid())
+            accept();
+    });
 }
 
 SelectPartyDlg::~SelectPartyDlg()
 {
     delete ui;
+}
+
+const SelectPartyResult &SelectPartyDlg::result() const
+{
+    return m_Result;
 }

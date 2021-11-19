@@ -15,6 +15,7 @@
 namespace SqlTools
 {
     bool ExecuteQuery(QSqlQuery *query, QString *err = nullptr);
+    bool ExecuteQuery(const QString &query, QSqlDatabase Db = QSqlDatabase::database(), QString *err = nullptr);
 
     bool beginTransaction(QSqlDatabase &_db);
     bool commitTransaction(QSqlDatabase &_db);
@@ -82,6 +83,9 @@ public:
     Q_INVOKABLE void setValue(const quint16 &id, const QVariant &val);
     Q_INVOKABLE void setValue(const QString &id, const QVariant &val);
 
+    Q_INVOKABLE bool isReal(const quint16 &id) const;
+    Q_INVOKABLE bool isReal(const QString &id) const;
+
     QVariant operator[](const quint16 &id);
     QVariant operator[](const QString &id);
 
@@ -94,6 +98,8 @@ public:
     Q_INVOKABLE bool first();
     Q_INVOKABLE bool last();
     Q_INVOKABLE bool seek(const quint16 &index);
+    Q_INVOKABLE const qint32 &position() const;
+    Q_INVOKABLE bool isValidPosition() const;
 
     Q_INVOKABLE bool newRec();
     Q_INVOKABLE bool update();
@@ -109,6 +115,10 @@ public:
     Q_INVOKABLE virtual bool submit() Q_DECL_OVERRIDE;
     Q_INVOKABLE virtual bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) Q_DECL_OVERRIDE;
     void sendDataChanged(const QModelIndex &index);
+
+signals:
+    void positionChanged();
+    void columnValueChanged(QString);
 
 protected:
     void fillFieldsNameIds();

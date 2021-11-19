@@ -20,6 +20,7 @@
 #define JSON_RENOVATION_TYPE "renovation_type"
 #define JSON_PROMOTIONS "promotions"
 #define JSON_BUILDTYPE "buildtype"
+#define JSON_ROOMS "rooms"
 
 #define JSON_NAMES "names"
 #define JSON_MSC_STREETS "msc_streets"
@@ -60,6 +61,7 @@ public:
     JsonTableModel *model(const QString &name);
 
     const QDir &appdir() const;
+    QFileInfo scriptFile(const QString &filename) const;
 
     QObject *jsConsoleObj();
 

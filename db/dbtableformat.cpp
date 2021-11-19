@@ -258,8 +258,18 @@ QSharedPointer<DbTableFormat> DbTableFormat::fromJsonObject(const QJsonObject &o
             fld.m_Size = objFld["size"].toInt();
         }
 
-        pPtr->m_FieldsNameIds.insert(fld.name(), pPtr->m_Fields.size());
-        pPtr->m_Fields.append(fld);
+        QVector<DbFieldBase>::iterator pos = std::find_if(pPtr->m_Fields.begin(), pPtr->m_Fields.end(), [fld](const DbFieldBase &existsfield) -> bool
+        {
+            return QString::compare(existsfield.name(), fld.name(), Qt::CaseInsensitive) == 0;
+        });
+
+        if (pos == pPtr->m_Fields.end())
+        {
+            pPtr->m_FieldsNameIds.insert(fld.name(), pPtr->m_Fields.size());
+            pPtr->m_Fields.append(fld);
+        }
+        else
+            throw ExceptionBase(tr("Описание полей таблицы [%1] не корректно: поле [%2] дублируется").arg(pPtr->m_Name, fld.name()));
     }
 
     if (!obj["indices"].isArray() || obj["indices"].toArray().empty())

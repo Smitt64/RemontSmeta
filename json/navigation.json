@@ -191,6 +191,13 @@
                             "mime": "application/jsonmodel",
                             "param": "json/models/finishing_door.json",
                             "statustip" : "Чистовые работы (Двери)"
+                        },
+                        {
+                            "title": "Дверная фурнитура",
+                            "icon": "DoorFur",
+                            "mime": "application/jsonmodel",
+                            "param": "json/models/finishing_door_fur.json",
+                            "statustip" : "Чистовые работы (Дверная фурнитура)"
                         }
                     ]
                 }

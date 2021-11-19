@@ -4,6 +4,27 @@
 #include <QFile>
 #include <QDir>
 
+bool isErrorJsValue(const QJSValue &value, QStringList exceptionStackTrace)
+{
+    bool isError = value.isError();
+
+    if (isError)
+    {
+        if (!exceptionStackTrace.empty())
+        {
+            qInfo(logJsEngine()) << "Stack trace:";
+            for (const auto &line : exceptionStackTrace)
+                qInfo(logJsEngine()) << line;
+        }
+
+        qInfo(logJsEngine()) << "Uncaught exception at line"
+                             << value.property("lineNumber").toInt()
+                             << ":" << value.toString();
+    }
+
+    return isError;
+}
+
 JsClassWrapper::JsClassWrapper(const QJSValue &object, QQmlEngine *JsEngine) :
     m_pJsEngine(JsEngine),
     m_Obj(new QJSValue(object))
@@ -48,7 +69,7 @@ bool JsClassExecuter::open(const QString &filename)
 
         QStringList exceptionStackTrace;
         QJSValue context = m_JsEngine->evaluate(scriptdata, filename, 0, &exceptionStackTrace);
-        hr = !isErrorValue(context, exceptionStackTrace);
+        hr = !isErrorJsValue(context, exceptionStackTrace);
     }
 
     return hr;
@@ -56,23 +77,7 @@ bool JsClassExecuter::open(const QString &filename)
 
 bool JsClassExecuter::isErrorValue(const QJSValue &value, QStringList exceptionStackTrace)
 {
-    bool isError = value.isError();
-
-    if (isError)
-    {
-        if (!exceptionStackTrace.empty())
-        {
-            qInfo(logJsEngine()) << "Stack trace:";
-            for (const auto &line : exceptionStackTrace)
-                qInfo(logJsEngine()) << line;
-        }
-
-        qInfo(logJsEngine()) << "Uncaught exception at line"
-                             << value.property("lineNumber").toInt()
-                             << ":" << value.toString();
-    }
-
-    return isError;
+    return isErrorJsValue(value, exceptionStackTrace);
 }
 
 void JsClassExecuter::setObjectOwner(QObject *obj, const JsClassExecuter::Ownership &owner)

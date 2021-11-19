@@ -3,6 +3,7 @@
 #include <QtAlgorithms>
 #include <QTextStream>
 #include <QSqlQuery>
+#include <QSqlDriver>
 
 using namespace SqlTools;
 
@@ -10,9 +11,10 @@ bool createMemoryTable(DbTable *table, QSqlDatabase m_Db)
 {
     QString sql;
     QTextStream stream(&sql);
+    const QSqlDriver *driver = m_Db.driver();
 
     bool isFirst = true;
-    stream << "create table " << table->name() << "(" << Qt::endl;
+    stream << "create table " << driver->escapeIdentifier(table->name(), QSqlDriver::TableName) << "(" << Qt::endl;
 
     const DbTableIndex &primaryIndex = table->indexx(table->primaryIndex());
 
@@ -23,7 +25,7 @@ bool createMemoryTable(DbTable *table, QSqlDatabase m_Db)
         if (!isFirst)
             stream << ", " << Qt::endl;
 
-        stream << fld.name() << " " << fld.sqlType();
+        stream << driver->escapeIdentifier(fld.name(), QSqlDriver::FieldName) << " " << fld.sqlType();
 
         if (fld.type() == DbFieldBase::String)
             stream << QString("(%1)").arg(fld.size());
@@ -36,10 +38,11 @@ bool createMemoryTable(DbTable *table, QSqlDatabase m_Db)
 
     stream << Qt::endl << ")";
 
-    qCInfo(logInputService()) << "createMemoryTable";
-    QSqlQuery query(m_Db);
+    qCInfo(logInputService()) << "createMemoryTable" << QString("[%1]").arg(table->name()) << "in" << m_Db.connectionName();
+    /*QSqlQuery query(m_Db);
     query.prepare(sql);
-    return ExecuteQuery(&query);
+    return ExecuteQuery(&query);*/
+    return ExecuteQuery(sql, m_Db);
 }
 
 

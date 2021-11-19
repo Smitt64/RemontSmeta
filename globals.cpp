@@ -66,7 +66,7 @@ void Globals::initJsDebugging()
 {
     m_JsConsole.reset(new JsConsole());
 #if defined(QT_QML_DEBUG)
-    qCInfo(logCore()) << "Init java script debugging";
+    //qCInfo(logCore()) << "Init java script debugging";
     //m_JsDebugger = qQmlEnableDebuggingHelper();
     /*m_JsDebugger = qQmlEnableDebuggingHelper;
     qDebug() << QQmlDebuggingEnabler::debuggerServices();
@@ -242,6 +242,14 @@ JsonTableModel *Globals::model(const QString &name)
 const QDir &Globals::appdir() const
 {
     return m_AppDir;
+}
+
+QFileInfo Globals::scriptFile(const QString &filename) const
+{
+    QDir d = appdir();
+    d.cd("scripts");
+
+    return QFileInfo(d.absoluteFilePath(filename));
 }
 
 QObject *Globals::jsConsoleObj()

@@ -23,6 +23,7 @@ public:
         Date,
         Integer,
         Real,
+        Boolean,
         ByteArray
     };
     Q_ENUM(FieldType);
@@ -64,10 +65,12 @@ private:
             t = FieldType::Integer;
         else if (std::is_same<Type, QDate>::value)
             t = FieldType::Date;
-        else if (std::is_same<Type, float>::value)
+        else if (std::is_same<Type, float>::value || std::is_same<Type, qreal>::value)
             t = FieldType::Real;
         else if (std::is_same<Type, QByteArray>::value)
             t = FieldType::ByteArray;
+        else if (std::is_same<Type, bool>::value)
+            t = FieldType::Boolean;
         return t;
     }
 };

@@ -13,8 +13,6 @@ public:
     TPersonService(const quint32 &PersonId);
     virtual ~TPersonService();
 
-    virtual QSharedPointer<DbTable> createTableObj() Q_DECL_OVERRIDE;
-
     QSharedPointer<DbTable> contactsTable();
     QSharedPointer<DbTable> adressTable();
     QSharedPointer<DbTable> ownTable();
@@ -34,7 +32,6 @@ public:
     TContactService(const quint32 &PersonId);
     virtual ~TContactService();
 
-    virtual QSharedPointer<DbTable> createTableObj() Q_DECL_OVERRIDE;
     virtual bool onInsertRecord(DbTable *parent, QSqlRecord *recOld, QSqlRecord *recNew) Q_DECL_OVERRIDE;
 
 private:
@@ -49,7 +46,6 @@ public:
     TAdressService(const quint32 &PersonId);
     virtual ~TAdressService();
 
-    virtual QSharedPointer<DbTable> createTableObj() Q_DECL_OVERRIDE;
     virtual bool onInsertRecord(DbTable *parent, QSqlRecord *recOld, QSqlRecord *recNew) Q_DECL_OVERRIDE;
 
 private:
@@ -64,7 +60,6 @@ public:
     TPersonOwnService(const quint32 &PersonId);
     virtual ~TPersonOwnService();
 
-    virtual QSharedPointer<DbTable> createTableObj() Q_DECL_OVERRIDE;
     virtual bool onInsertRecord(DbTable *parent, QSqlRecord *recOld, QSqlRecord *recNew) Q_DECL_OVERRIDE;
 
 private:

@@ -5,11 +5,13 @@
 #include "exceptionbase.h"
 #include <iterator>
 #include <QTextStream>
+#include <QRegularExpression>
 #include <QSqlQuery>
 #include <QSqlResult>
 #include <QSqlRecord>
 #include <QSqlError>
 #include <QSqlField>
+#include <QSqlDriver>
 #include <QDate>
 #include <QPointer>
 
@@ -22,7 +24,7 @@ bool ExecuteQuery(QSqlQuery *query, QString *err)
 
     for (QVariantList::iterator i = values.begin(); i != values.end(); ++i)
     {
-        qCInfo(logSql()) << std::distance(values.begin(), i) + 1 << ":" << *i;
+        qCInfo(logSql()) << std::distance(values.begin(), i) << ":" << *i;
     }
 #else
     QMap<QString, QVariant> values = query->boundValues();
@@ -43,10 +45,48 @@ bool ExecuteQuery(QSqlQuery *query, QString *err)
         if (err != Q_NULLPTR)
             *err = query->lastError().text();
     }
-    qCInfo(logSql()) << query->executedQuery();
+
+    QString formatedSql = query->lastQuery().simplified();
+    qCInfo(logSql()) << formatedSql;
+
+    if (values.size())
+    {
+        const QSqlDriver *driver = query->driver();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        qsizetype pos = -1;
+        for (QVariantList::reverse_iterator i = values.rbegin(); i != values.rend(); ++i)
+        {
+            QSqlField fld;
+            fld.setValue(*i);
+            QString val;
+
+            if ((*i).typeId() == QMetaType::QString || (*i).typeId() == QMetaType::QByteArray)
+                val = QString("'%1'").arg(driver->formatValue(fld));
+            else
+                val = driver->formatValue(fld);
+
+            pos = formatedSql.lastIndexOf(QChar('?'), pos);
+
+            if (pos != -1)
+                formatedSql = formatedSql.replace(pos, 1, val);
+        }
+#else
+#endif
+        qCInfo(logSql()) << "Formated:";
+        qCInfo(logSql()) << formatedSql;
+    }
+
     qCInfo(logSql()) << "Result:" << result;
 
     return result;
+}
+
+bool ExecuteQuery(const QString &query, QSqlDatabase Db, QString *err)
+{
+    QScopedPointer<QSqlQuery> queryObj(new QSqlQuery(Db));
+    queryObj->prepare(query);
+
+    return ExecuteQuery(queryObj.data(), err);
 }
 
 bool beginTransaction(QSqlDatabase &_db)
@@ -269,10 +309,17 @@ QVariant DbTable::value(const quint16 &id) const
     const DbFieldBase &fld = field(id);
     QSqlRecord *rec = m_Cache[m_recPos];
 
+    QVariant val = rec->value(id);
     if (fld.type() == DbFieldBase::Date)
         return QDate::fromJulianDay(rec->value(id).value<qint64>());
+    else if (fld.type() == DbFieldBase::Boolean)
+    {
+        if (val.canConvert<int>() && val.value<int>())
+            return true;
+        else
+            return false;
+    }
 
-    QVariant val = rec->value(id);
     return val;
 }
 
@@ -294,6 +341,13 @@ void DbTable::setValue(const quint16 &id, const QVariant &val)
     QVariant newValue;
     if (fld.type() == DbFieldBase::Date)
         newValue = val.toDate().toJulianDay();
+    else if (fld.type() == DbFieldBase::Boolean)
+    {
+        if (val.canConvert<int>() && val.value<int>())
+            newValue = 1;
+        else
+            newValue = 0;
+    }
     else
         newValue = val;
 
@@ -301,15 +355,30 @@ void DbTable::setValue(const quint16 &id, const QVariant &val)
     {
         rec->setValue(id, newValue);
         m_RecordActions.insert(m_recPos, RecordAction::ActionUpdate);
-    }
 
-    //emit dataChanged(index(m_recPos, 0), index(m_recPos, m_Fields.size()), {Qt::DisplayRole, Qt::EditRole});
+        emit columnValueChanged(fld.name());
+        emit dataChanged(index(m_recPos, id), index(m_recPos, id), {Qt::DisplayRole, Qt::EditRole});
+    }
 }
 
 void DbTable::setValue(const QString &id, const QVariant &val)
 {
     Q_ASSERT_X(m_FieldsNameIds.contains(id.toLower()), "DbTable::value", "field not exists");
     setValue(m_FieldsNameIds[id.toLower()], val);
+}
+
+bool DbTable::isReal(const quint16 &id) const
+{
+    Q_ASSERT_X(id < m_Fields.size(), "DbTable::isReal", "invalid field index");
+
+    const DbFieldBase &fld = field(id);
+    return fld.type() == DbFieldBase::Real;
+}
+
+bool DbTable::isReal(const QString &id) const
+{
+    Q_ASSERT_X(m_FieldsNameIds.contains(id.toLower()), "DbTable::value", "field not exists");
+    return isReal(m_FieldsNameIds[id.toLower()]);
 }
 
 QVariant DbTable::operator[](const quint16 &id)
@@ -626,10 +695,14 @@ bool DbTable::newRecPrivate()
         switch(fld.type())
         {
         case DbFieldBase::Integer:
+        case DbFieldBase::Boolean:
             m_Cache[m_recPos]->setValue(i, 0);
             break;
         case DbFieldBase::Date:
             m_Cache[m_recPos]->setValue(i, 0);
+            break;
+        case DbFieldBase::Real:
+            m_Cache[m_recPos]->setValue(i, 0.0);
             break;
         default:
             m_Cache[m_recPos]->setValue(i, "");
@@ -832,21 +905,25 @@ void DbTable::resetCurrRec()
 bool DbTable::next()
 {
     DBTABLE_CALL_FUNC(next, ++m_recPos);
+    emit positionChanged();
 }
 
 bool DbTable::previous()
 {
     DBTABLE_CALL_FUNC(previous, --m_recPos);
+    emit positionChanged();
 }
 
 bool DbTable::first()
 {
     DBTABLE_CALL_FUNC(first, m_recPos = 0);
+    emit positionChanged();
 }
 
 bool DbTable::last()
 {
     DBTABLE_CALL_FUNC(last, m_recPos = m_QuerySize - 1);
+    emit positionChanged();
 }
 
 bool DbTable::seek(const quint16 &index)
@@ -868,6 +945,7 @@ bool DbTable::seek(const quint16 &index)
     {
         m_recPos = index;
         resetCurrRec();
+        emit positionChanged();
     }
     return hr;
 }
@@ -980,4 +1058,17 @@ bool DbTable::reset()
     }
 
     return hr;
+}
+
+const qint32 &DbTable::position() const
+{
+    return m_recPos;
+}
+
+bool DbTable::isValidPosition() const
+{
+    if (m_recPos == QSql::AfterLastRow || m_recPos == QSql::BeforeFirstRow)
+        return false;
+
+    return true;
 }

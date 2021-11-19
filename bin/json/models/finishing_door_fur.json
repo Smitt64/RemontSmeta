@@ -1,0 +1,42 @@
+{
+    "metadata" : {
+        "title" : "Чистовые работы (Дверная фурнитура)"
+    },
+
+    "columns" : [
+        {
+            "name" : "id",
+            "title" : "№",
+            "type" : "autoinc",
+            "editable" : false,
+            "width" : 25
+        },
+        {
+            "name" : "name",
+            "title" : "Наименование",
+            "type" : "string",
+            "min" : 1,
+            "max" : 100,
+            "width" : 300
+        }
+    ],
+
+    "elements" : [
+        {
+            "id" : "0",
+            "name" : "нет"
+        },
+        {
+            "id" : "1",
+            "name" : "Ручка-защелка"
+        },
+        {
+            "id" : "2",
+            "name" : "Замок"
+        },
+        {
+            "id" : "3",
+            "name" : "Ручка-защелка + замок"
+        }
+    ]
+}

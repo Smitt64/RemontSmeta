@@ -11,6 +11,7 @@ class JsonTableModel : public QAbstractItemModel
     Q_OBJECT
 public:
     typedef std::optional<quint16> ColumnWidthType;
+    typedef QVector<JsonTableColumn*> JsonTableColumnVector;
 
     enum ColumnType
     {
@@ -39,6 +40,10 @@ public:
     ColumnWidthType columnWidth(const quint16 &column) const;
     ColumnType columnType(const quint16 &column) const;
     QSizeF columnMinMax(const quint16 &column) const;
+    int columnNumber(const QString &column) const;
+
+    QVariant getValue(const QString &key, const QVariant &keyValue, const QString &valueFld, const QVariant &defaultValue = QVariant()) const;
+    QModelIndex getValueIndex(const QString &key, const QVariant &keyValue) const;
 
     bool hasChanges() const;
 
@@ -61,7 +66,7 @@ signals:
 private:
     void readElements(const QJsonArray &arr);
     void readMetaData(const QJsonValue &obj);
-    QVector<JsonTableColumn*> m_Columns;
+    JsonTableColumnVector m_Columns;
     QScopedPointer<JsonTableModelData> m_Data;
 
     QScopedPointer<QJsonValue> m_JsonColumns, m_MetaData;

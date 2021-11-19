@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "person/personpanel.h"
-#include "renovationpanel.h"
+#include "renovation/renovationpanel.h"
 #include "models/subwindowsmodel.h"
 #include "navigationdockwidget.h"
 #include "globals.h"

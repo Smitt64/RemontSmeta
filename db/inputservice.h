@@ -85,6 +85,13 @@ public:
     {
     }
 
+    virtual QSharedPointer<DbTable> createTableObj() Q_DECL_OVERRIDE
+    {
+        QSharedPointer<DbTable> ptr(new TTable(db()));
+        setHandlerToTable(ptr.data());
+        return ptr;
+    }
+
 protected:
     bool initMainService()
     {

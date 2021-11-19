@@ -542,6 +542,19 @@ QSizeF JsonTableModel::columnMinMax(const quint16 &column) const
     return QSize(m_Columns[column]->min(), m_Columns[column]->max());
 }
 
+int JsonTableModel::columnNumber(const QString &column) const
+{
+    JsonTableColumnVector::const_iterator iter = std::find_if(m_Columns.begin(), m_Columns.end(), [=](const JsonTableColumn * const col) -> bool
+    {
+        return col->name() == column;
+    });
+
+    if (iter == m_Columns.end())
+        return -1;
+
+    return m_Columns.indexOf(*iter);
+}
+
 QVariant JsonTableModel::data(const QModelIndex &index, int role) const
 {
     const JsonTableColumn * const column = m_Columns[index.column()];
@@ -679,4 +692,36 @@ bool JsonTableModel::save()
     f.write(doc.toJson());
 
     return hr;
+}
+
+QVariant JsonTableModel::getValue(const QString &key, const QVariant &keyValue, const QString &valueFld, const QVariant &defaultValue) const
+{
+    int keyFld = columnNumber(key);
+    int resultFld = columnNumber(valueFld);
+
+    QModelIndexList matchs = match(index(0, keyFld), Qt::DisplayRole, keyValue, 1, Qt::MatchExactly);
+
+    if (matchs.isEmpty())
+        return defaultValue;
+
+    QModelIndex first = matchs.first();
+    if (!first.isValid())
+        return defaultValue;
+
+    return data(index(first.row(), resultFld));
+}
+
+QModelIndex JsonTableModel::getValueIndex(const QString &key, const QVariant &keyValue) const
+{
+    int keyFld = columnNumber(key);
+    QModelIndexList matchs = match(index(0, keyFld), Qt::DisplayRole, keyValue, 1, Qt::MatchExactly);
+
+    if (matchs.isEmpty())
+        return QModelIndex();
+
+    QModelIndex first = matchs.first();
+    if (!first.isValid())
+        return QModelIndex();
+
+    return first;
 }

@@ -18,4 +18,11 @@ public:
     virtual ~TRenovation();
 };
 
+class TRoom : public DbTable
+{
+public:
+    TRoom(QSqlDatabase _db = QSqlDatabase::database());
+    virtual ~TRoom();
+};
+
 #endif // RENOVATION_H

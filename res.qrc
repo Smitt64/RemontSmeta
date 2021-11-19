@@ -69,8 +69,13 @@
         <file>images/dark-icons/16x16/applets/Threshold.png</file>
         <file>images/dark-icons/16x16/applets/Radiator.png</file>
         <file>images/dark-icons/16x16/applets/Door.png</file>
+        <file>images/dark-icons/16x16/actions/Save.png</file>
+        <file>images/dark-icons/16x16/applets/Room.png</file>
+        <file>images/dark-icons/16x16/actions/AddRoom.png</file>
+        <file>images/dark-icons/16x16/applets/DoorFur.png</file>
     </qresource>
     <qresource prefix="/tools">
         <file>json/navigation.json</file>
+        <file>json/renovationquestionmodel.json</file>
     </qresource>
 </RCC>

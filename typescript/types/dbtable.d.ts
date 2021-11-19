@@ -1,4 +1,5 @@
-interface DbTable {
+interface DbTable extends QAbstractItemModel
+{
     constructor(name : string);
 
     name() : string;
